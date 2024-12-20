@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
+#SBATCH --partition=amdgpufast --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --out=../logs/serve.%j.out
+
+# if PROJECT_DIR is not defined, then expect we are in ${PROJECT_DIR}/slurm
+
+export OUTLINES_CACHE_DIR=/tmp/.drchajan.vlll.outlines
+
+export CUDA_VISIBLE_DEVICES=`/home/drchajan/bin/query_empty_gpus,py`
+echo CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}
+
+VLLM_MY_PORT=8333
+echo "VLLM_MY_PORT=${VLLM_MY_PORT}"
+cd /home/drchajan/devel/python/FC
+source init_environment_vllm_amd.sh
+
+export LLM_DIR=CohereForAI/aya-expanse-8b
+export MAX_MODEL_LEN=8192
+
+export NGPUS=1
+vllm serve $LLM_DIR --port "${VLLM_MY_PORT}" --gpu-memory-utilization 0.95 --max-model-len ${MAX_MODEL_LEN} --tensor-parallel-size ${NGPUS} --dtype auto
