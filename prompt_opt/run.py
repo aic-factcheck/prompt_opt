@@ -45,7 +45,6 @@ if __name__ == "__main__":
     def save_dir_fn(cfg):
         return cfg["exp_dir"]
 
-
     args = parse_pycfg_args()
     if Path(args.pycfg).is_file(): # new run
         cfg = read_pycfg(args.pycfg, save_dir_fn=save_dir_fn)
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     elif Path(args.pycfg).is_dir():
         cfg = read_json(Path(args.pycfg, "config.json"))
         resume = True
-        logger.info("resuming previous run...")
+        li("resuming previous run...")
     else:
         raise ValueError(f"The argument must be configuration file or existing run directory (to resume). Got this instead: {args.pycfg}")
 
@@ -62,12 +61,12 @@ if __name__ == "__main__":
     exp_path.mkdir(parents=True, exist_ok=True)
 
     slurm_job_id = get_job_id()
-    logger.info(f"slurm_job_id: {slurm_job_id}")
+    li(f"slurm_job_id: {slurm_job_id}")
     cfg["slurm_job_id"] = slurm_job_id
     rename_slurm_job_name(slurm_job_id, cfg["experiment_name"])
     rng = np.random.RandomState(cfg["seed"])
-    logger.info(f"exp_path: {exp_path}")
-    logger.info(f"experiment_name: {cfg['experiment_name']}")
+    li(f"exp_path: {exp_path}")
+    li(f"experiment_name: {cfg['experiment_name']}")
 
     with open(Path(exp_path, f"slurm_job_id.{slurm_job_id}"), 'w') as fp:
         pass
@@ -79,6 +78,7 @@ if __name__ == "__main__":
                                              exp_path=exp_path,
                                              dataset_loader=dataset_loader,
                                              predictors=predictors,
+                                             rng=rng,
                                              resume=resume)
             
     if resume:
@@ -90,6 +90,6 @@ if __name__ == "__main__":
         with open(Path(exp_path, f"wandb_id.{wandb_run.id}"), 'w') as fp:
             fp.write(wandb_run.url)
         
-    archive = optimizer.optimize(rng=rng)
+    archive = optimizer.optimize()
     
     wandb.finish()

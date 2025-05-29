@@ -18,5 +18,8 @@ cd ${PROJECT_DIR}
 
 export OUTLINES_CACHE_DIR=/tmp/.drchajan.vlll.outlines
 
+# see https://github.com/vllm-project/vllm/discussions/15644
+export VLLM_USE_V1=0
+
 export PYTHONPATH=.:/home/drchajan/devel/python/FC/drchajan/src:/home/drchajan/devel/python/FC/fever-baselines/src:$PYTHONPATH
 python -m prompt_opt.run "$1"

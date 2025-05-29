@@ -2,6 +2,8 @@ import os
 import re
 import subprocess
 
+from prompt_opt.utils import lw
+
 def rename_slurm_job_name(job_id, new_job_name):
     cmd = f"scontrol update JobId={job_id} JobName={new_job_name}"
     
@@ -27,12 +29,20 @@ def get_idle_gpus():
         stdout=subprocess.PIPE, universal_newlines=True
     )
 
-    bus2gpu = {line.strip().split(",")[1].strip(): line.strip().split(",")[0].strip()  for line in gpu_info_result.stdout.splitlines()}
-    busy_gpus = set(line.strip() for line in process_info_result.stdout.splitlines())
+    try:
+        bus2gpu = {line.strip().split(",")[1].strip(): line.strip().split(",")[0].strip()  for line in gpu_info_result.stdout.splitlines()}
+        busy_gpus = set(line.strip() for line in process_info_result.stdout.splitlines())
 
-    idle_gpus = [gpu for bus, gpu in bus2gpu.items() if bus not in busy_gpus]
+        idle_gpus = [gpu for bus, gpu in bus2gpu.items() if bus not in busy_gpus]
+    except:
+        lw("No GPUs found!")
+        idle_gpus = []
 
     return idle_gpus
+
+
+def has_gpus():
+    return len(get_idle_gpus()) > 0
 
 
 def get_allocated_nodes_and_gpus(job_id):

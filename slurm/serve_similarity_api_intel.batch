@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
+#SBATCH --partition=gpufast --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --out=../logs/similarity_api.%j.out
+
+# if PROJECT_DIR is not defined, then expect we are in ${PROJECT_DIR}/slurm
+if [[ -z "${PROJECT_DIR}" ]]; then
+    export PROJECT_DIR="$(dirname "$(pwd)")"
+fi
+
+if [ -f "${PROJECT_DIR}/init_environment_vllm_intel.sh" ]; then
+    source "${PROJECT_DIR}/init_environment_vllm_intel.sh"
+fi
+
+cd ${PROJECT_DIR}
+
+export PYTHONPATH=.:$PYTHONPATH
+python -m prompt_opt.run_similarity_api

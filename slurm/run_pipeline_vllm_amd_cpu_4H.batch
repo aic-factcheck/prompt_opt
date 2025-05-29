@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
+#SBATCH --partition=amdfast
+#SBATCH --mem=32G
+#SBATCH --out=../logs/run_pipeline.%j.out
+
+# if PROJECT_DIR is not defined, then expect we are in ${PROJECT_DIR}/slurm
+if [[ -z "${PROJECT_DIR}" ]]; then
+    export PROJECT_DIR="$(dirname "$(pwd)")"
+fi
+
+if [ -f "${PROJECT_DIR}/init_environment_vllm_amd.sh" ]; then
+    source "${PROJECT_DIR}/init_environment_vllm_amd.sh"
+fi
+
+cd ${PROJECT_DIR}
+
+export OUTLINES_CACHE_DIR=/tmp/.drchajan.vlll.outlines
+
+export PYTHONPATH=.:/home/drchajan/devel/python/FC/drchajan/src:/home/drchajan/devel/python/FC/fever-baselines/src:$PYTHONPATH
+python -m prompt_opt.run_pipeline "$1"

@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --time=4:00:00
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=32
+#SBATCH --partition=amdfast
+#SBATCH --mem=96G
+#SBATCH --out=../logs/llamacpp.%j.out
+
+MY_PORT=8881
+echo "MY_PORT=${MY_PORT}"
+cd /home/drchajan/devel/python/FC
+source init_environment_vllm_amd.sh
+ml OpenBLAS
+
+export LLM_DIR="/home/drchajan/models/GGUF/unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF/DeepSeek-R1-Distill-Llama-8B-Q8_0.gguf"
+export MODEL_NAME="dseek-lamma8B"
+llama-server --model $LLM_DIR --cache-type-k q8_0 --threads 32 --port ${MY_PORT} --alias $MODEL_NAME --host 0.0.0.0

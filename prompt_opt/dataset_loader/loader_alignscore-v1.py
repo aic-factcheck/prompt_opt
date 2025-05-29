@@ -11,7 +11,13 @@ class DatasetLoaderAlignScoreV1:
         data_dir = "data/labeled_datasets/alignscore_bench_val_json_query_named_tags.jsonl"
         logger.info("data_dir: " + data_dir)
         data = read_jsonl(data_dir)
-        data = {"trn": data[:6], "dev": data[6:26], "tst": data[26:46], "tst2": data[46:]}
+        
+        merge_trn_and_dev = cfg.get("merge_trn_and_dev", False)
+        if merge_trn_and_dev:
+            data = {"trn": data[:26], "tst": data[26:46], "tst2": data[46:]}
+        else:
+            data = {"trn": data[:6], "dev": data[6:26], "tst": data[26:46], "tst2": data[46:]}
+            
         split_txt = ', '.join([f"{k}({len(v)})" for k, v in data.items()])
         logger.info(f'dataset loaded: {split_txt}')
         
@@ -33,6 +39,7 @@ class DatasetLoaderAlignScoreV1:
                 "enum": [0, 1]
                 }
             },
+            "additionalProperties": False,
             "required": ["class"]
         }
         logger.info('dataset output schema:\n' + jformat(self.output_schema))
@@ -75,6 +82,7 @@ class DatasetLoaderAlignScoreMaskedV1:
                 "enum": [0, 1]
                 }
             },
+            "additionalProperties": False,
             "required": ["class"]
         }
         logger.info('dataset output schema:\n' + jformat(self.output_schema))
