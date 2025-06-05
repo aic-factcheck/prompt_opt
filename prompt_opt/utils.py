@@ -51,6 +51,7 @@ def extract_json_response_dseek(model_response: str):
 
 
 def candidate2prompt_dseek(candidate, messages_key="messages"):
+    """Extract prompt from a DeepSeek-like reasoning model (<think></think> tags for reasoning)"""
     model_response = candidate[messages_key][-1]["content"]
     return extract_response_dseek(model_response)["answer"].strip()
 

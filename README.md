@@ -87,3 +87,68 @@ sbatch run_opt_vllm_amdgpu_1gpu.batch cfg/MamaAI/cfg_55cases_V1_EA.py
 ```
 
 The experiment output directory is defined by `get_exp_dir(cfg)` in the configuration files. It is now set to `EXP/[experiment_name]/seed_XXXXX`.
+
+## Optimization Archive
+The prompt candidates explored during the optimization run are stored in `archive.jsonl`, where each line corresponds to a single **candidate**.
+The format of each candidate is as follows (long strings cropped):
+```json
+{
+  "messages": [ // chat messages leading to this candidate's prompt
+    {
+      "role": "user",
+      "content": "# Instructions\nI wil...",
+      "duration": 0.0,
+      "desc": ""
+    },
+    {
+      "role": "assistant",
+      "content": "<think>\n\nOkay, I nee...", // this contains the prompt
+      "duration": 43.97779560089111,
+      "desc": ""
+    }
+  ],
+  "split2indices": { // sample indices refering to original splits
+  // here the original "trn" split is randomly resampled to new "trn" and "dev" splits
+  // to promote diversity, it works similarly to cross-validation
+    "trn": {"source": "trn", "indices": [13, 0, ...]}, 
+    "dev": {"source": "trn", "indices": [10, 6, ...]}
+  },
+  "duration": 43.981162786483765, // total time to create this candidate
+  "id": 21, // candidate identifier
+  "parent_id": 1, // candidate's parent identifier
+  "split": { // candidate evaluation for each split
+    "trn": [ // the list of all "trn" split samples
+      {
+        "think": "\nOkay, I need to det...", // reasoning model's thinking extracted
+        "pred": {"label": "other"}, // JSON prediction
+        "gold": {"label": "520: rány nešité, ..."}, // GOLD label JSON
+        "query": "<document id=\"1\">\nZd...", // the query part of the prompt
+        "messages": [ // evaluation chat messages
+          {
+            "role": "user",
+            "content": "To transform a query...",
+            "duration": 0.0,
+            "desc": ""
+          },
+          {
+            "role": "assistant",
+            "content": "<think>\n\nOkay, I nee...", // this contains the prediction extracted above
+            "duration": 14.473679304122925,
+            "desc": "AgentJSONForReasonin..."
+          }
+        ],
+        "eval": { // scores for this sample 
+          "oa": { // here it is only the ObjectAligner score
+            "reasoning": "The predicted output...", // textual explanation of the score
+            "score": 0.0 // score value (0-1 range)
+          }
+        }
+      }, ...
+    ],
+    "dev": [...],
+    "tst": [...]
+  }
+}
+```
+
+See methods like `utils.candidate2prompt_dseek` to extract the candidate's prompt.
