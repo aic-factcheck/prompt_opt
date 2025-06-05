@@ -1,0 +1,50 @@
+# Task: Select a Better Answer
+
+You will compare two LLM-generated answers and determine which one is better.  
+To guide your evaluation, you will also receive a **query** (the part of prompt given to the LLMs providing the context) and a **gold-standard answer** (a high-quality reference answer).
+
+## Input Data Overview
+
+You will receive the following elements:
+
+1. A **query**, wrapped in `<query></query>`
+2. A **gold-standard answer**, wrapped in `<gold></gold>`
+3. **Prediction 1** from an LLM, wrapped in `<prediction1></prediction1>`
+4. **Prediction 2** from another LLM, wrapped in `<prediction2></prediction2>`
+
+> Note: You will only be given the **query** text, not the full prompt used to generate the predictions.
+
+---
+
+## Your Task
+
+1. **Analyze the Query and Gold-Standard Answer**
+   - Identify what the query is asking.
+   - Understand the relationship between the query and the gold-standard answer (e.g., is it explanatory, factual, summarizing, etc.).
+   - Infer any implicit expectations or constraints in the gold-standard response.
+
+2. **Compare the Two Predictions**
+   - Evaluate how well each prediction responds to the query and how closely it aligns with the gold-standard answer.
+   - Consider accuracy, completeness, clarity, relevance, language (there may be multiple languages used), and overall human-likeness of the answers.
+   - Choose the prediction that is more likely to be judged as *better* by a human evaluator.
+
+---
+
+## Input Data  
+
+<query>{{ query }}</query>
+<gold>{{ gold }}</gold>
+<prediction1>{{ prediction1 }}</prediction1>
+<prediction2>{{ prediction2 }}</prediction2>
+
+---
+
+## Output Instructions
+
+- Respond with **"1"** (without quotes) if **Prediction 1** is better.
+- Respond with **"2"** if **Prediction 2** is better.
+- If both predictions are essentially the same (in content and quality), respond with **"1"**.
+
+**Format your response like this:**
+
+Start with the <think> tag. Give your reasoning as usual. The text after closing </think> will contain only a single number (1 or 2).

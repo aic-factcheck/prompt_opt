@@ -1,0 +1,16 @@
+LLMs are known to be sensitive to even small changes, such as different capitalization or formatting.
+We are dealing with prompts having the following format:
+1) Instructions describing a query-to-answer transformation.
+2) The query enclosed within <query></query> tags.
+
+The LLM answer to the prompt is a JSON having the following schema:
+{{ schema }}
+
+You will be given only the instruction part of the prompt (the prompt without the query).
+Your task is to give me a modified version of the instructions but ensure the meaning is still perfectly preserved.
+The modifications should be mild, e.g., changes in capitalization, formatting, and small replacements (True instead of Yes, Q instead of Question, etc.)
+
+As always, use Markdown with the "Thinking," "Reflection," and "Response" sections. The content of the "Response" section key will contain only the instructions and nothing else.
+
+The prompt instructions to be modified follows:
+{{ prompt }}

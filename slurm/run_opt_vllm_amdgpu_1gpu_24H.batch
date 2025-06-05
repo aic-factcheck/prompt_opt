@@ -10,8 +10,8 @@ if [[ -z "${PROJECT_DIR}" ]]; then
     export PROJECT_DIR="$(dirname "$(pwd)")"
 fi
 
-if [ -f "${PROJECT_DIR}/init_environment_vllm_amd.sh" ]; then
-    source "${PROJECT_DIR}/init_environment_vllm_amd.sh"
+if [ -f "${PROJECT_DIR}/init_environment_default.sh" ]; then
+    source "${PROJECT_DIR}/init_environment_default.sh"
 fi
 
 cd ${PROJECT_DIR}

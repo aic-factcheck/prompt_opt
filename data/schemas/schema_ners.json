@@ -1,0 +1,99 @@
+{
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "roles"
+                ]
+            }
+        },
+        "locations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "abbreviation": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "gpe",
+                            "loc",
+                            "fac",
+                            "address",
+                            "region",
+                            "coords",
+                            "celestial"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "abbreviation",
+                    "type"
+                ]
+            }
+        },
+        "organizations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "abbreviation": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "com",
+                            "gov",
+                            "edu",
+                            "mil",
+                            "art",
+                            "np",
+                            "sport",
+                            "political",
+                            "media",
+                            "fin",
+                            "health",
+                            "religious"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "abbreviation",
+                    "type"
+                ]
+            }
+        }
+
+    },
+    "required": [
+        "people",
+        "locations",
+        "organizations"
+    ]
+}

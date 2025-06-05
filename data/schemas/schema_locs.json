@@ -1,0 +1,39 @@
+{
+    "type": "object",
+    "properties": {
+        "locations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "abbreviation": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "gpe",
+                            "loc",
+                            "fac",
+                            "address",
+                            "region",
+                            "coords",
+                            "celestial"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "abbreviation",
+                    "type"
+                ]
+            }
+        }
+    },
+    "required": [
+        "locations"
+    ]
+}

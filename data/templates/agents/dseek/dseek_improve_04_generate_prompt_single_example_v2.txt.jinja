@@ -1,0 +1,14 @@
+I have provided an example of an error in query-to-answer transformation caused by the initial prompt.
+You have analyzed the strengths and weaknesses of the prompt by comparing the predicted and gold answers.
+Now, your task is to carefully design a new and improved prompt that corrects errors like those observed, ensuring that responses are generally more aligned with the gold targets.
+
+We are dealing with prompts having the following format:
+1) Instructions describing a query-to-answer transformation.
+2) The query enclosed within <query></query> tags.
+
+Importantly, the prompt is zero-shot, so:
+- Do not copy any complete examples from above!
+- Do not add any synthetic examples of the complete query-answer pairs!
+- On the other hand, you can provide examples of individual query or answer elements.
+
+Your response will contain only the instruction part of the prompt and nothing else. Importantly, do not add any query or query placeholder.

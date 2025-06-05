@@ -1,0 +1,31 @@
+# Instructions
+I will give you several examples of query and answer text pairs.
+The answer uses JSON format with the following schema:
+
+{{ schema }}
+
+Your task is to give me clear and detailed instructions on how to transform the queries into the corresponding answers by myself.
+Note that more than the provided examples may be needed to infer the rules to construct the answers from the queries and that there may be multiple explanations.
+Consider that query and answer may use different text styles as well as other languages than English.
+
+# Examples
+The examples follow:
+{% for ex in dataset %}
+## Example {{ loop.index }}
+### Query
+{{ ex.query }}
+
+### Answer
+{{ ex.answer }}
+{% endfor %}
+
+After presenting you all available examples, your task is to give me clear and highly detailed instructions that will perform the query-to-answer transformation.
+
+I will use these instructions to construct a prompt to get answers for yet unseen queries.
+
+IMPORTANT:
+- Do not copy any full examples from the training examples above!
+- Do not add any synthetic examples of the query-answer pairs!
+- On the other hand, you can provide examples of individual query or answer elements.
+ 
+Your response will contain only the instruction part of the prompt and nothing else. Importantly, do not add any query or query placeholder.

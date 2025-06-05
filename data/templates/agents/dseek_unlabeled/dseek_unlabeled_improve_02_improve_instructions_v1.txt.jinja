@@ -1,0 +1,53 @@
+# Task: Evaluate your Answer and Improve the Instructions 
+
+Our task is to improve the instruction part of the prompt I gave you initially (the **initial prompt**). As you have seen, the prompt consisted of three key components:  
+
+1) **Instructions**: Guidelines describing how to transform a query into an answer.  
+2) **Query**: Encapsulated within `<query></query>` tags.  
+3) **JSON Schema**: Defines the expected structure of the output and remains constant for our task.
+
+Your response to the **initial prompt** will be marked as the **unlabeled answer** as I have no annotations to check if your answer was correct. I have, however, few **labeled examples** (other queries and corresponding **gold-standard answers**). So let use this additional information to judge the **unlabeled answer** and to subsequently improve the instructions.
+
+## Provided Data
+
+You will receive one or more **labeled examples**, enclosed in `<labeled>` tags with an `id` attribute for reference. Each labeled example contains:  
+  1) A **query** (`<query></query>`)  
+  2) The **gold-standard answer** (`<gold></gold>`)  
+
+## Your Task  
+
+Analyze your **unlabeled answer** with respect to the **labeled examples** and think about questions such as:
+1) Does your **unlabeled answer** align with the query-to-gold transformations of the **labeled examples**?
+2) What correction does your **unlabeled answer** need?
+
+Then refine the **instruction** from the **initial prompt** so it is more likely that your answer using these new improved instructions will make your future responses better than your **unlabeled answer**. Specifically:  
+
+1) **Focus mostly on the query from the **initial prompt** and your **unlabeled answer** to it.
+   - It is more important to improve the instructions with respect to the query presented in the **initial prompt**.
+   - Nevertheless, generality of the instructions should be somewhat preserved for the **labeled examples** as well.
+   - This means: do not overfit! 
+2) **Identify Strengths & Weaknesses**  
+   - Compare your **unlabeled answer** to the **gold-standard answers** of the **labeled examples** (consider the different queries, of course).  
+   - Identify where the original instructions succeed or fail in guiding the model.  
+3) **Enhance Clarity & Precision**  
+   - Ensure semantic accuracy and proper formatting is aligned with the **gold-standard answers**.
+   - Improve specificity while maintaining generality (zero-shot approach).  
+   - Avoid ambiguity that could lead to misinterpretations.  
+4) **Preserve Zero-Shot Nature**  
+   - **Do not copy full examples** from the provided labeled dataset.  
+   - **Do not create synthetic full query-answer pairs.**  
+   - You may provide examples of **individual elements** (e.g., fragments of a query or answer format).  
+
+## Input Data  
+### Labeled examples
+{% for ex in dataset %}
+<labeled id="{{ loop.index }}">
+<query>{{ ex.query }}</query>
+<gold>{{ ex.gold }}</gold>
+</labeled>
+{% endfor %}
+## Final Step: Craft Improved Instructions
+
+Rewrite the original instructions to minimize errors in the **unlabeled answer** and improve alignment with the expected **gold-standard answers**. 
+
+Start with the <think> tag. The text after closing </think> will contain only the instruction part of the prompt and nothing else. Importantly, do not add any query or query placeholder. Similarly, do not add the JSON schema.

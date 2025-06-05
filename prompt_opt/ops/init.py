@@ -73,7 +73,7 @@ class DSeekInitAllExamplesJSON:
         
         self.system_content = self.predictor.render_template(self.cfg_op.get("template_system_content"))
         self.template_init_using_all_examples = self.predictor.get_template(self.cfg_op["template_init_using_all_examples"])
-        
+   
 
     def _generate_initial_helper(self):
         st = time.time()
@@ -89,7 +89,7 @@ class DSeekInitAllExamplesJSON:
         
         batch = [{"query": e["query"], "answer": jformat(e["answer"])} for e in trn_data]
         examples_prompt = self.template_init_using_all_examples.render(dataset=batch, schema=schema_str)
-        
+
         response = agent.query(prompt=examples_prompt, frequency_penalty=0.05, seed=self.rng.randint(int(1e10)))
         ld(pf(agent.history))
         

@@ -1,0 +1,37 @@
+{
+    "type": "object",
+    "properties": {
+        "events": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "subevents": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "event": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "event"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "subevents"
+                ]
+            }
+        }
+    },
+    "required": [
+        "events"
+    ]
+}

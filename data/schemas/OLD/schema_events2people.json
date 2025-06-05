@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "people": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "type": "integer"
+                    },
+                    "people": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "people"
+                ]
+            }
+        }
+    },
+    "required": [
+        "people"
+    ]
+}

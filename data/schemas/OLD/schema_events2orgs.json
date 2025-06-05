@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "orgs": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "type": "integer"
+                    },
+                    "orgs": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "orgs"
+                ]
+            }
+        }
+    },
+    "required": [
+        "orgs"
+    ]
+}

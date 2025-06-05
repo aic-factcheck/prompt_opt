@@ -1,0 +1,224 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "number"
+        },
+        "cro_idx": {
+            "type": "number"
+        },
+        "date": {
+            "type": "string"
+        },
+        "text": {
+            "type": "string"
+        },
+        "people": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "roles"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "locations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "abbreviation": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "gpe",
+                            "loc",
+                            "fac",
+                            "address",
+                            "region",
+                            "coords",
+                            "celestial"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "abbreviation",
+                    "type"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "organizations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "abbreviation": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "com",
+                            "gov",
+                            "edu",
+                            "mil",
+                            "art",
+                            "np",
+                            "sport",
+                            "political",
+                            "media",
+                            "fin",
+                            "health",
+                            "religious"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "abbreviation",
+                    "type"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "events": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "event": {
+                        "type": "string"
+                    },
+                    "subevents": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "subid": {
+                                    "type": "number"
+                                },
+                                "event": {
+                                    "type": "string"
+                                },
+                                "time_start": {
+                                    "type": "string"
+                                },
+                                "time_end": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "subid",
+                                "event",
+                                "time_start",
+                                "time_end"
+                            ],
+                            "additionalProperties": false
+                        }
+                    },
+                    "people": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "orgs": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "locations": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "attributions": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "future": {
+                        "type": "boolean"
+                    },
+                    "time_start": {
+                        "type": "string"
+                    },
+                    "time_end": {
+                        "type": "string"
+                    },
+                    "time_reported": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "event",
+                    "subevents",
+                    "people",
+                    "orgs",
+                    "locations",
+                    "attributions",
+                    "time_start",
+                    "time_end",
+                    "time_reported"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "id",
+        "cro_idx",
+        "date",
+        "text",
+        "people",
+        "locations",
+        "organizations",
+        "events"
+    ],
+    "additionalProperties": false
+}

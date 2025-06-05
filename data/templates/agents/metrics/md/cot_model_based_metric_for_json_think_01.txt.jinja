@@ -1,0 +1,30 @@
+# Task Overview
+Your task is to compare and assess two texts: the first is the correct one (the gold standard), and the second one was predicted using LLM.
+The gold one is enclosed between `<gold>` and `</gold>` tags, while the predicted one between `<predicted>` and `</predicted>`.
+You will provide an integer score in a range of 0-100 assessing the quality of the predicted text, you will accompany the score with thorough reasoning.
+
+## Evaluation categories
+Precisely evaluate the predicted text based on the following categories. Provide both scores and reasoning. Assign 0 up to the maximum points provided for each category. More points correspond to a better match with gold. The overall score will be the sum of these points (the points sum to 100). The assignment of points for each category must be clearly supported by giving example comparisons between gold and predicted texts.
+
+  - **Content quality (max 30 pts)**: Check the predicted text, does it semantically match the gold? For balanced similarities and differences, assign 15 pts. Provide reasoning but be specific, explanations like "the predicted mostly matches gold" are too general.
+  - **Text style (max 25 pts)**: Predicted texts should match the gold texts stylistically (formal, informal, academic, news, etc.). Texts may also emphasize specific entities (people, locations, etc.), provide increased details on specific topics (opinions, citations, colors, flavors, etc.), or use specialized constructs like tags to mark (and possibly classify parts) of the text. Analyze the gold for its text style, the emphasized entities (if any), etc. and give differences to the predicted text. Be verbose.
+  - **Items missing (max 10 pts)**: Check if the predicted text involves any lists or enumerations and if there are missing items. Assign the score based on importance and the number of missing items. Assign the maximum number of points for no missing items. If there are no lists assign the maximum number of points as well. List missing items and discuss their importance to the overall output.
+  - **Excessive items (max 12 pts)**: Check if the predicted text involves any lists or enumerations and if there are items not present in the gold. Assign score based on the relevancy and the number of excessive items. Assign 0 pts when clearly hallucinated content is present. If there are no lists assign the maximum number of points. Discuss the relevancy of excessive items -- explain why they are relevant or why they are not.
+  - **Item ordering (max 8 pts)**: In many cases the ordering of list items is important. Decide and describe the importance of ordering for each list or enumeration. Assign points based on ordering importance and the extent of ordering errors. If an ordering of a particular list is not important, then ignore it in this category evaluation score. If there are no lists assign the full number of points.
+  - **Length (max 10 pts)**: Even if the output is semantically correct, do the lengths of the predicted text's section match the gold ones? Describe the overall text length as well as the lengths of sections (if any) in the gold (e.g., number of words, sentences, paragraphs,...). Assign points based on length differences of texts in predicted vs. gold.
+  - **Language (max 5 pts)**: The texts should use the correct language. The gold text may be multilingual and the predicted text should use the same languages in the same sections. Explicitely enumerate the languages used in different sections of the gold text, then assign the score based on a fraction of the prediced text's sections using the correct language.
+
+## General instructions
+  - **Category scoring and reasoning**: For each item from the "Evaluation categories": give reasoning and assign the points.
+  - **Score** Show how the points per the categories are summed to get the final overall score - provide the actual summation of individual points.
+  - **Improvement guidelines**: Give a bullet list of guidelines that would fix similar types of prediction errors and would increase the score if implemented to the LLM prompt which gave the text predictions in the future. Be specific: instead of giving general guidelines such as "Improve the name format.", you should suggest more detailed "Instead of giving a surname only, provide a full name including an abbreviated middle name, e.g. John B. Doe."
+
+## Gold and predicted JSONs
+
+<gold>{{ gold }}</gold>
+
+<predicted>{{ pred }}</predicted>
+
+## Final instructions
+
+Let us solve this task using the Chain of Thought approach (CoT), so start reasoning about the solution before giving me the final answer.

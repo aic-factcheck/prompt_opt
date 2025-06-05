@@ -155,6 +155,18 @@ def get_dseek_llama70b(gpus=[0, 1], reasoning=False):
         "template_dir": "data/templates/agents",
         "vllm_opts": {"gpu-memory-utilization": 0.95, "max-model-len": 65536, "enable-prefix-caching": None, **extra_opts},
     }
+    
+    
+def get_dseek0527_qwen3_8b(gpus=[0], reasoning=False):
+    extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}
+    return {
+        "short": "dseek0527_qwen3_8b",
+        "name": "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+        "gpus": gpus,
+        "sampling_params": {"temperature": 1.0, "top_k": 64, "top_p": 0.95, "min_p": 0.0},
+        "template_dir": "data/templates/agents",
+        "vllm_opts": {"gpu-memory-utilization": 0.95, "max-model-len": 131072, "enable-prefix-caching": None, **extra_opts},
+    }
 
 def get_gemma3_12b(gpus=[0], reasoning=False):
     extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}

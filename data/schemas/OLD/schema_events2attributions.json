@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "attributions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "type": "integer"
+                    },
+                    "attributions": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "attributions"
+                ]
+            }
+        }
+    },
+    "required": [
+        "attributions"
+    ]
+}

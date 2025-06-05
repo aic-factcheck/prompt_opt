@@ -1,0 +1,25 @@
+# Instructions
+I will give you several examples of query and answer text pairs.
+Your task is to give me clear instructions on how to transform the queries into the corresponding answers by myself.
+
+Proceed in the following steps:
+1) Describe the query format in detail:
+ - Is it plain text, JSON, XML, HTML, or other common format? Describe it.
+ - Describe its structure in detail.
+ - Does it use any special symbols or tags?
+2) Similarly describe the answer format.
+3) Hypothesize about possible query to answer transforms:
+ - Note that more than the provided examples may be needed to infer the rules to construct the answers from the queries and that there may be multiple explanations.
+ - If there are more possibilities, enumerate them.
+ - If you can't find the explanation, say it.
+
+# Examples
+The examples follow:
+{% for ex in dataset %}
+## Example {{ loop.index }}
+### Answer
+{{ ex.answer }}
+
+### Query
+{{ ex.query }}
+{% endfor %}

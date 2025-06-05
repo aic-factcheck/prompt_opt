@@ -1,0 +1,19 @@
+After presenting you all available examples, your task is to generate a zero-shot prompt that will perform the query-to-answer transformation for yet unseen queries:
+1) If there were more hypotheses on how the query-to-answer transform works, choose the most probable one and explain why.
+2) Generate a prompt that will perform the correct transformation for a new yet unseen query. 
+
+The generated prompt should adhere to the following conditions:
+1) Generalization: The prompt must generalize well to unseen queries.
+2) Detail: the prompt must give all important details of the query to answer transform.
+3) No examples: the prompt MUST be zero-shot:
+ - Do not copy any example from the training data above!
+ - Do not give any full synthetic examples of query-answer pairs!
+ - On the other hand, you can provide examples of small parts of queries and answers, if needed.
+4) Query/answer formats: provide a description of both query and answer formats:
+ - Use placeholders, if needed, to adhere to the zero-shot property.
+5) Format: the generated prompt itself will be plain text with some basic formatting (paragraphs, bullet lists, etc.)
+ 
+As always, use Markdown with the "Thinking," "Reflection," and "Response" sections. The content of the "Response" section key will be a string containing only the generated prompt and nothing else.
+To use the generated prompt, I will append a query part of an unseen example enclosed within <query></query> tags. Do not add the query yourself!
+
+Think thoroughly.

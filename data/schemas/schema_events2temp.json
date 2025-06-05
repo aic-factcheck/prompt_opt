@@ -1,0 +1,56 @@
+{
+    "type": "object",
+    "properties": {
+        "events": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "subevents": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "subid": {
+                                    "type": "integer"
+                                },
+                                "time_start": {
+                                    "type": "string"
+                                },
+                                "time_end": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "subid",
+                                "time_start",
+                                "time_end"
+                            ]
+                        }
+                    },
+                    "time_start": {
+                        "type": "string"
+                    },
+                    "time_end": {
+                        "type": "string"
+                    },
+                    "time_reported": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "time_start",
+                    "time_end",
+                    "time_reported"
+                ]
+            }
+        }
+    },
+    "required": [
+        "events"
+    ]
+}
