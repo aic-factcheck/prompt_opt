@@ -91,7 +91,7 @@ The experiment output directory is defined by `get_exp_dir(cfg)` in the configur
 ## Optimization Archive
 The prompt candidates explored during the optimization run are stored in `archive.jsonl`, where each line corresponds to a single **candidate**.
 The format of each candidate is as follows (long strings cropped):
-```json
+```json5
 {
   "messages": [ // chat messages leading to this candidate's prompt
     {
