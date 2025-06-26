@@ -2,6 +2,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=32
 #SBATCH --partition=amdfast
+#SBATCH --no-requeue
 #SBATCH --mem=96G
 #SBATCH --out=../logs/llamacpp.%j.out
 

@@ -1,0 +1,13 @@
+{
+    "type": "object",
+    "properties": {
+        "answer": {
+            "type": "string",
+            "score": "exact"
+        }
+    },
+    "required": [
+        "answer"
+    ],
+    "keyImportance": 0.0
+}

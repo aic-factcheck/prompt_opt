@@ -3,7 +3,7 @@ from pathlib import Path
 
 from aic_nlp_utils.json import read_json, read_jsonl
 
-from prompt_opt.models.model_configs import get_dseek_llama8b, get_dseek_llama70b, get_qwq32b, get_gemma3_12b, get_qwen3_14b, get_qwen3_32b, get_dseek0527_qwen3_8b
+from prompt_opt.models.model_configs import *
 
 
 def get_exp_dir(cfg):
@@ -20,7 +20,9 @@ def config():
         "seed": np.random.randint(10000000),
         "models": {
             # "optimizer": get_dseek_llama70b(reasoning=True),
-            "optimizer": get_dseek0527_qwen3_8b(reasoning=True),
+            # "optimizer": get_dseek0527_qwen3_8b(reasoning=True),
+            "optimizer": get_dseek_r1_0527_685b(gpus=[0, 1, 2, 3], reasoning=True),
+            # "optimizer": get_dseek_r1_0527_685b(gpus=[0, 1, 2, 3, 4, 5, 6, 7], reasoning=True),
             # "optimizer": get_qwen3_14b(reasoning=True),
             # "optimizer": get_qwen3_32b(reasoning=True),
         },

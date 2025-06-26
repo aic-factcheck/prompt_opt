@@ -2,6 +2,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
 #SBATCH --partition=amdgpufast --gres=gpu:2
+#SBATCH --no-requeue
 #SBATCH --mem=96G
 #SBATCH --out=../logs/run_opt.%j.out
 

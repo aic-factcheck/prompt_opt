@@ -2,6 +2,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
 #SBATCH --partition=gpufast --gres=gpu:1
+#SBATCH --no-requeue
 #SBATCH --mem=32G
 #SBATCH --out=../logs/similarity_api.%j.out
 

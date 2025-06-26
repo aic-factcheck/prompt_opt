@@ -167,6 +167,23 @@ def get_dseek0527_qwen3_8b(gpus=[0], reasoning=False):
         "template_dir": "data/templates/agents",
         "vllm_opts": {"gpu-memory-utilization": 0.95, "max-model-len": 131072, "enable-prefix-caching": None, **extra_opts},
     }
+    
+    
+def get_dseek_r1_0527_685b(gpus=[0, 1, 2, 3], reasoning=False):
+    extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}
+    return {
+        "short": "dseek_r1_0527_685b",
+        "name": "RedHatAI/DeepSeek-R1-0528-quantized.w4a16",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": {"gpu-memory-utilization": 0.95, 
+                      "max-model-len": 163840, 
+                      "max-seq-len-to-capture": 163840, 
+                      "enable-prefix-caching": None, 
+                      "enable-chunked-prefill": None,
+                      "trust-remote-code": None,
+                      **extra_opts},
+    }
 
 def get_gemma3_12b(gpus=[0], reasoning=False):
     extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}
@@ -237,6 +254,25 @@ def get_qwen3_32b(gpus=[0], reasoning=False):
     return {
         "short": "qwen3_32b",
         "name": "CobraMamba/Qwen3-32B-AWQ",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": vllm_opts,
+    }
+    
+
+def get_qwen3_235b(gpus=[0,1], reasoning=False):
+    extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}
+    vllm_opts = {
+        "gpu-memory-utilization": 0.95,
+        "max-model-len": 40960 if len(gpus) == 1 else 131072,
+        "enable-prefix-caching": None,
+        **extra_opts,
+    }
+    if len(gpus) > 1:
+        vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
+    return {
+        "short": "qwen3_235b",
+        "name": "Qwen/Qwen3-235B-A22B-FP8",
         "gpus": gpus,
         "template_dir": "data/templates/agents",
         "vllm_opts": vllm_opts,

@@ -61,7 +61,7 @@ pip install --upgrade pip
 pip install wheel setuptools
 pip install -U vllm --pre --extra-index-url https://wheels.vllm.ai/nightly
 pip install git+https://github.com/aic-factcheck/aic-nlp-utils.git
-pip install loguru pandas rapidfuzz wandb
+pip install loguru pandas rapidfuzz scikit-learn wandb
 ```
 
 Do not forget to [setup Weights & Biases](https://docs.wandb.ai/quickstart/) for logging. 
@@ -71,7 +71,20 @@ Do not forget to [setup Weights & Biases](https://docs.wandb.ai/quickstart/) for
 pip install jupyterlab
 python -m ipykernel install --user --name=promptopt
 ```
-## "55 cases" medical data test run
+
+## Big-Bench-Hard (BBH) for Prompt Optimization Test Run
+BBH datasets are stored in `data/BBH_PO`. There are multiple versions:
+- `task_orig.json`: original BBH data converted to common format used by this module,
+- `task.json`: harder(?) version created by stripping task descriptions and converting answer format from class id choice to string (in some cases),
+- `task_obs.json`: hardest version(?): same as the previous but the answer class names are obfuscated to give least information on the task.
+See `notebooks/data_bbh_promptopt_create.ipynb` for more details.
+
+Run from `slurm/` directory:
+```bash
+sbatch run_opt_vllm_amdgpu_2gpu.batch cfg/BBH/cfg_BBH_V1_EA.py
+```
+
+## "55 cases" Medical Data Test Run
 The SLURM example scripts can be found in `slurm/` directory.
 
 This runs a simplified version of the task with 3 classes only (521 and 521A merged) using DeepSeek fine-tunned LLama model (needs 2 A100 GPUs).
