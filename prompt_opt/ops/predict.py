@@ -5,7 +5,7 @@ from loguru import logger
 import numpy as np
 
 from ..agents.agent_chat import AgentChat
-from ..agents.agent_json import AgentJSONCorrectingSteppedDSeek, AgentJSONSteppedCoT, AgentJSONCorrectingSteppedCoT, AgentJSONForReasoningModels
+from ..agents.agent_json import AgentJSONCorrecting, AgentJSONCorrectingSteppedDSeek, AgentJSONSteppedCoT, AgentJSONCorrectingSteppedCoT, AgentJSONForReasoningModels
 from ..utils import *
 
 
@@ -102,6 +102,47 @@ class DSeekPredictSteppedJSON:
             temperature=0.0,
             frequency_penalty=0.05,
             debug=False,
+        )
+
+        return response, agent.history()
+    
+    
+class PredictCorrectedJSON:
+    # similar to DSeekPredictSteppedJSON, but using AgentJSONCorrecting
+    # aimed for GPT-OSS models which, at this time, do not support constrained JSON generation
+
+    def __init__(self, cfg, exp_path, predictors):
+        logger.info("loading PredictCorrectedJSON...")
+        self.cfg_op = cfg
+        self.predictor = predictors[self.cfg_op["model"]]
+
+        self.system_content = self.predictor.render_template(self.cfg_op.get("template_system_content"))
+        self.template_process = self.predictor.get_template(self.cfg_op["template_process"])
+        self.template_correct = self.predictor.get_template(self.cfg_op["template_correct"])
+        self.max_corrections = self.cfg_op.get("max_corrections")
+        if "temperature" in self.cfg_op:
+            self.sampling_opts = {"temperature": self.cfg_op["temperature"]}
+        else:
+            self.sampling_opts = {"temperature": 0.0, "frequency_penalty": 0.05}
+            
+        
+
+    def predict(self, prompt, query, output_schema, examples=None):
+        assert examples is None, "Strictly zero-shot!"
+        schema_str = jformat(output_schema)
+
+        prompt_process = self.template_process.render(prompt=prompt, query=query, schema=schema_str)
+        prompt_correct = self.template_correct.render(query=query, schema=schema_str)
+        
+        agent = AgentJSONCorrecting(
+            AgentChat(self.predictor, self.system_content), max_corrections=self.max_corrections
+        )
+        response = agent.query(
+            process_prompt=prompt_process,
+            correct_prompt=prompt_correct,
+            schema=schema_str,
+            debug=False,
+            **self.sampling_opts
         )
 
         return response, agent.history()

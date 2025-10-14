@@ -6,6 +6,7 @@ import openai
 
 from prompt_opt.agents.agent_chat import AgentChat
 from prompt_opt.utils import extract_json_response_dseek, is_valid_json, pf, ld, lw, le
+from aic_nlp_utils.json import read_jsonl, read_json, write_json, write_jsonl, process_to_jsonl
 
 
 class AgentJSONDirect:
@@ -154,19 +155,56 @@ class AgentJSONForReasoningModels:
             lw(f"JSON generation failed due to timeout: process_prompt=\n{process_prompt}")
             return {"think": errmsg, "pred": errmsg}
         
+        if result is None:
+            pred = "ERROR: JSON generation failed!"
+            lw(f"JSON generation failed: process_prompt=\n{process_prompt}\nthink=\n{think}")
+        else:
+            try:
+                pred = json.loads(result)
+            except Exception as e:
+                le("result\n", result)
+                le("think\n", think)
+                pred = ""
+        return {"think": think, "pred": pred}
+        
+        
+class AgentJSONCorrecting:
+    # similar to AgentJSONCorrectingSteppedDSeek but simpler and more general
+    # aimed for GPT-OSS models which, at this time, do not support constrained JSON generation
+
+    def __init__(self, parent: AgentChat, max_corrections: int):
+        self._parent = parent
+        self.max_corrections = max_corrections
+
+    def history(self):
+        return self._parent.history()
+
+    def add_user(self, prompt: str):
+        self._parent.add_user(prompt)
+
+    def add_assistant(self, prompt: str):
+        self._parent.add_assistant(prompt)
+
+    def query(self, process_prompt: str, correct_prompt: str, schema, **kwargs):
+
+        corrections = 0
+        result = extract_json_response_dseek(
+            self._parent.query(process_prompt, desc="AgentJSONCorrecting:process", **kwargs)
+        )
+        while not is_valid_json(result["answer"], schema) and corrections < self.max_corrections:
+            corrections += 1
+            result = extract_json_response_dseek(
+                self._parent.query(
+                    correct_prompt, desc=f"AgentJSONCorrecting:correct_{corrections}", **kwargs
+                )
+            )
+
         try:
-            if result is None:
-                pred = "ERROR: JSON generation failed!"
-                lw(f"JSON generation failed: process_prompt=\n{process_prompt}\nthink=\n{think}")
-            else:
-                try:
-                    pred = json.loads(result)
-                except Exception as e:
-                    le("result\n", result)
-                    le("think\n", think)
-                    raise e
-            return {"think": think, "pred": pred}
+            pred = json.loads(result["answer"])
+            return {"think": result["think"], "pred": pred, "corrections": corrections}
         except Exception as e:
-            ld(think)
-            ld(result)
+            logger.debug(result)
+            logger.debug(result["answer"])
+            logger.error("saving failure_messages.jsonl!")
+            write_jsonl("failure_messages.jsonl", self.history())
             raise(e)

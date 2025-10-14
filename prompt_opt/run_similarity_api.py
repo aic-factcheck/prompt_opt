@@ -11,6 +11,9 @@ import os
 import asyncio
 import uvicorn
 
+from loguru import logger
+
+
 from prompt_opt.semantic_similarity.align_score import AlignScore
 
 CACHE_FILE = "similarity_cache.json"
@@ -36,13 +39,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, debug=True)
 
+
 class SimilarityRequest(BaseModel):
     pairs: list[tuple[str, str]]
+
 
 async def compute_similarity_tfidf(pair):
     text1, text2 = pair
     pair_key = hashlib.md5(json.dumps(("tfidf", text1, text2)).encode()).hexdigest()
-    print("pair_key", pair_key)
+    # print("pair_key", pair_key)
     if pair_key in cache:
         return cache[pair_key]
     
@@ -105,4 +110,4 @@ async def similarity_endpoint(request: SimilarityRequest):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8444)
+    uvicorn.run(app, host="0.0.0.0", port=8444, log_level="debug")

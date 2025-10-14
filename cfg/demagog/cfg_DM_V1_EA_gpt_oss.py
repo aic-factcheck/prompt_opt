@@ -11,28 +11,13 @@ def get_exp_dir(cfg):
 
 
 def config():
-    # dataset = "date_understanding"
-    # dataset = "disambiguation_qa"
-    # dataset = "formal_fallacies"
-    # dataset = "hyperbaton"
-    # dataset = "navigate"
-    # dataset = "penguins_in_a_table"
-    # dataset = "salient_translation_error_detection"
-    # dataset = "snarks"
-    # dataset = "temporal_sequences"
-    dataset = "web_of_lies"
-    # dataset = "word_sorting"
-    # dataset_type = ""
-    dataset_type = "_orig"
-    # dataset_type = "_obf"
+    dataset_name, dataset_short = "demagog", "DM" 
     mutate_max_error_samples = 3
     # mutate_max_error_samples = 1
     cfg = {
         "root": "EXP",
-        # "experiment_name": f"BBH_{dataset}{dataset_type}_V1_EA",
-        # "experiment_note": f"""BBH_{dataset}{dataset_type}_V1_EA: initial""",
-        "experiment_name": f"BBH_{dataset}{dataset_type}_V1_OLLAMA",
-        "experiment_note": f"""BBH_{dataset}{dataset_type}_V1_OLLAMA: Ollama testing""",
+        "experiment_name": f"{dataset_short}_V1",
+        "experiment_note": f"""{dataset_short}_V1""",
         "seed": np.random.randint(10000000),
         "models": {
             # "optimizer": get_dseek_llama70b(gpus=[0], reasoning=True),
@@ -40,14 +25,15 @@ def config():
             # "optimizer": get_qwen3_14b(reasoning=True),
             # "optimizer": get_qwen3_32b(reasoning=True),
             # "optimizer": get_qwen3_235b(reasoning=True),
-            "optimizer": get_ollama_gptoss_20b()
+            # "optimizer": get_ollama_gptoss_20b()
+            "optimizer": get_ollama_gptoss_120b()
         },
         "dataset_loader": {
             "impl": "prompt_opt.dataset_loader.loader_common.DatasetLoaderJSONOut",
-            "data_path": f"data/BBH_PO/datasets/{dataset}/task{dataset_type}.json",
-            "schema_path": "data/BBH_PO/schemas/schema_string_answer.json",
+            "data_path": f"data/demagog/v4/{dataset_name}.jsonl",
+            "schema_path": "data/demagog/v4/schemas/schema_demagog.json",
             "trn_size": 16,
-            "tst_size": 24
+            "tst_size": 24,
         },
         "optimizer": {
             "impl": "prompt_opt.optimizers.ea.EvolutionaryAlgorithm",
@@ -61,12 +47,11 @@ def config():
                 "init_op": {
                     "impl": "prompt_opt.ops.init.DSeekInitAllExamplesJSON",
                     "model": "optimizer",
-                    "trn_size": 6, # out of 16
+                    "trn_size": 4,  # out of 16
                     # MOVE ELSEWHERE
                     "template_init_using_all_examples": "dseek/dseek_init_01_using_all_examples_for_json_output_simple_v2.txt.jinja",
                 },
                 "mutate_op": {
-
                     "impl": "prompt_opt.ops.mutate.DSeekImproveJSON",
                     "model": "optimizer",
                     "select_split": "trn",
@@ -80,7 +65,7 @@ def config():
                         "dseek/dseek_improve_04_generate_prompt_v2.txt.jinja"
                         if mutate_max_error_samples > 1
                         else "dseek/dseek_improve_04_generate_prompt_single_example_v2.txt.jinja"
-                    )
+                    ),
                 },
                 "select_op": {
                     "impl": "prompt_opt.ops.select.Tournament",
@@ -95,11 +80,7 @@ def config():
                             #     "model": "optimizer",
                             #     "template_compare": "dseekdir/dseekdir_compare_01_single_example_v1.txt.jinja",
                             # },
-                            {
-                                "impl": "prompt_opt.ops.compare.CompareScore",
-                                "select_split": "trn",
-                                "score_key": "oa"
-                            }
+                            {"impl": "prompt_opt.ops.compare.CompareScore", "select_split": "trn", "score_key": "oa"}
                         ],
                     },
                 },
@@ -119,13 +100,9 @@ def config():
                             #     "model": "optimizer",
                             #     "template_compare": "dseekdir/dseekdir_compare_01_single_example_v1.txt.jinja",
                             # },
-                            {
-                                "impl": "prompt_opt.ops.compare.CompareScore",
-                                "select_split": "trn",
-                                "score_key": "oa"
-                            }
+                            {"impl": "prompt_opt.ops.compare.CompareScore", "select_split": "trn", "score_key": "oa"}
                         ],
-                    }
+                    },
                 },
                 "predict_op": {
                     "impl": "prompt_opt.ops.predict.PredictCorrectedJSON",
@@ -135,17 +112,17 @@ def config():
                     "max_corrections": 3,
                 },
                 "score_ops": [
-                    {
-                        "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
-                        "score_key": "oa",
-                        "schema": read_json("data/BBH_PO/oa/schema_string_answer_exact.json")
-                    },
                     # {
-                    #     "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
-                    #     "score_key": "mbj",
-                    #     "model": "optimizer",
-                    #     "template_score": "metrics/dseek/dseek_model_based_metric_01_for_json.txt.jinja",
+                    #     "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
+                    #     "score_key": "oa",
+                    #     "schema": read_json("data/demagog/v2/oa/schema_demagog_veracity_only.json"),
                     # },
+                    {
+                        "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
+                        "score_key": "mbj",
+                        "model": "optimizer",
+                        "template_score": "metrics/dseek/dseek_model_based_metric_02_for_json.txt.jinja",
+                    },
                 ],
             },
         },

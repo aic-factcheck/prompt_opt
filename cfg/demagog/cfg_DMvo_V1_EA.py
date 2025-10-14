@@ -11,42 +11,27 @@ def get_exp_dir(cfg):
 
 
 def config():
-    # dataset = "date_understanding"
-    # dataset = "disambiguation_qa"
-    # dataset = "formal_fallacies"
-    # dataset = "hyperbaton"
-    # dataset = "navigate"
-    # dataset = "penguins_in_a_table"
-    # dataset = "salient_translation_error_detection"
-    # dataset = "snarks"
-    # dataset = "temporal_sequences"
-    dataset = "web_of_lies"
-    # dataset = "word_sorting"
-    # dataset_type = ""
-    dataset_type = "_orig"
-    # dataset_type = "_obf"
+    dataset_name, dataset_short = "demagog_veracity_only", "DMvo" 
     mutate_max_error_samples = 3
     # mutate_max_error_samples = 1
     cfg = {
         "root": "EXP",
-        # "experiment_name": f"BBH_{dataset}{dataset_type}_V1_EA",
-        # "experiment_note": f"""BBH_{dataset}{dataset_type}_V1_EA: initial""",
-        "experiment_name": f"BBH_{dataset}{dataset_type}_V1_OLLAMA",
-        "experiment_note": f"""BBH_{dataset}{dataset_type}_V1_OLLAMA: Ollama testing""",
+        "experiment_name": f"{dataset_short}_V2",
+        "experiment_note": f"""{dataset_short}_V2: larger training data""",
         "seed": np.random.randint(10000000),
         "models": {
             # "optimizer": get_dseek_llama70b(gpus=[0], reasoning=True),
             # "optimizer": get_dseek_r1_0527_685b(gpus=[0, 1, 2, 3], reasoning=True),
             # "optimizer": get_qwen3_14b(reasoning=True),
-            # "optimizer": get_qwen3_32b(reasoning=True),
+            "optimizer": get_qwen3_32b(reasoning=True),
             # "optimizer": get_qwen3_235b(reasoning=True),
-            "optimizer": get_ollama_gptoss_20b()
+            # "optimizer": get_ollama_gptoss_20b()
         },
         "dataset_loader": {
             "impl": "prompt_opt.dataset_loader.loader_common.DatasetLoaderJSONOut",
-            "data_path": f"data/BBH_PO/datasets/{dataset}/task{dataset_type}.json",
-            "schema_path": "data/BBH_PO/schemas/schema_string_answer.json",
-            "trn_size": 16,
+            "data_path": f"data/demagog/v2/{dataset_name}.jsonl",
+            "schema_path": "data/demagog/v2/schemas/schema_demagog_veracity_only.json",
+            "trn_size": 32,
             "tst_size": 24
         },
         "optimizer": {
@@ -128,17 +113,15 @@ def config():
                     }
                 },
                 "predict_op": {
-                    "impl": "prompt_opt.ops.predict.PredictCorrectedJSON",
+                    "impl": "prompt_opt.ops.predict.PredictReasoningJSON",
                     "model": "optimizer",
-                    "template_process": "correct_json/correct_predict_01_process_json_schema_v1.txt.jinja",
-                    "template_correct": "correct_json/correct_predict_02_correct_json_schema_v1.txt.jinja",
-                    "max_corrections": 3,
+                    "template_process": "dseek/dseek_predict_01_process_json_schema_v1.txt.jinja",
                 },
                 "score_ops": [
                     {
                         "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
                         "score_key": "oa",
-                        "schema": read_json("data/BBH_PO/oa/schema_string_answer_exact.json")
+                        "schema": read_json("data/demagog/v2/oa/schema_demagog_veracity_only.json")
                     },
                     # {
                     #     "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",

@@ -296,6 +296,24 @@ def get_openai_gpt_o3_mini():
         "template_dir": "data/templates/agents",
         "ignore_temperature": True
     }
+    
+def get_openai_gpt_5():
+    return {
+        "type": "openai",
+        "short": "gpt5",
+        "name": "gpt-5-2025-08-07",
+        "template_dir": "data/templates/agents",
+        "ignore_temperature": True
+    }
+    
+def get_openai_gpt_5_mini():
+    return {
+        "type": "openai",
+        "short": "gpt5mini",
+        "name": "gpt-5-mini-2025-08-07",
+        "template_dir": "data/templates/agents",
+        "ignore_temperature": True
+    }
 
 
 def get_openai_gpt_4o():
@@ -304,3 +322,39 @@ def get_openai_gpt_4o():
 
 def get_debug_model():
     return {"type": "debug", "short": "debug_model", "name": "debug_model", "template_dir": "data/templates/agents"}
+
+
+def get_ollama_gptoss_20b(gpus=[0]):
+    return {
+        "type": "ollama",
+        "short": "gpt-oss:20b",
+        "name": "gpt-oss:20b",
+        "gpus": gpus,
+        # "guided_decoding": "standard",
+        "guided_decoding": "chat",
+        "template_dir": "data/templates/agents",
+    }
+    
+def get_ollama_gptoss_120b(gpus=[0]):
+    return {
+        "type": "ollama",
+        "short": "gpt-oss:120b",
+        "name": "gpt-oss:120b",
+        "gpus": gpus,
+        # "guided_decoding": "standard",
+        "guided_decoding": "chat",
+        "template_dir": "data/templates/agents",
+    }
+    
+def get_gptoss_120b(gpus=[0], reasoning=False):
+    vllm_opts = {
+        "gpu-memory-utilization": 0.9,
+        "no-enable-prefix-caching": None
+    }
+    return {
+        "short": "gpt-oss-120b",
+        "name": "openai/gpt-oss-120b",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": vllm_opts,
+    }

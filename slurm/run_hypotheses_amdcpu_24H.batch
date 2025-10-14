@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --time=24:00:00
 #SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
-#SBATCH --partition=h200 --gres=gpu:1
+#SBATCH --partition=amd
 #SBATCH --no-requeue
-#SBATCH --mem=96G
-#SBATCH --out=../logs/run_opt.%j.out
+#SBATCH --mem=8G
+#SBATCH --out=../logs/run_hypo.%j.out
 
 # if PROJECT_DIR is not defined, then expect we are in ${PROJECT_DIR}/slurm
 if [[ -z "${PROJECT_DIR}" ]]; then
@@ -12,15 +12,10 @@ if [[ -z "${PROJECT_DIR}" ]]; then
 fi
 
 if [ -f "${PROJECT_DIR}/init_environment_default.sh" ]; then
-    #source "${PROJECT_DIR}/init_environment_default.sh"
-    source "${PROJECT_DIR}/init_environment_promptopt2_amd.sh"
+    source "${PROJECT_DIR}/init_environment_default.sh"
 fi
 
 cd ${PROJECT_DIR}
 
-export OUTLINES_CACHE_DIR=/tmp/.drchajan.vlll.outlines
-# see https://github.com/vllm-project/vllm/discussions/15644
-#export VLLM_USE_V1=0
-
 export PYTHONPATH=.:/home/drchajan/devel/python/FC/drchajan/src:/home/drchajan/devel/python/FC/fever-baselines/src:$PYTHONPATH
-python -m prompt_opt.run "$1"
+python -m prompt_opt.run_hypotheses

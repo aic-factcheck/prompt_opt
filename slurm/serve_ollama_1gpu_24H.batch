@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --time=24:00:00
+#SBATCH --nodes=1 --ntasks-per-node=1 --cpus-per-task=4
+#SBATCH --partition=amdgpu --gres=gpu:1
+#SBATCH --no-requeue
+#SBATCH --mem=32G
+#SBATCH --out=../logs/ollama.%j.out
+
+export OLLAMA_HOST=0.0.0.0:8222 
+echo "OLLAMA_HOST=${OLLAMA_HOST}"
+export AIOHTTP_CLIENT_TIMEOUT=""
+export OLLAMA_CONTEXT_LENGTH=32768
+cd /home/drchajan/devel/python/FC/prompt_opt
+source init_environment_promptopt_amd.sh
+
+ollama serve

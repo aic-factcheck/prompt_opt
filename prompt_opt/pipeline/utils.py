@@ -99,7 +99,7 @@ def get_best_candidate(root_dir, metric_name, split="tst"):
 def get_best_prompt(root_dir, metric_name, split="tst", prompt_type="dseek"):
     assert prompt_type in ["dseek", "md"]
     candidate2prompt = {"dseek": candidate2prompt_dseek, "md": candidate2prompt_md}[prompt_type]
-    best_candidate = get_best_candidate(root_dir=root_dir, metric_name=metric_name, split=split, prompt_type=prompt_type)
+    best_candidate = get_best_candidate(root_dir=root_dir, metric_name=metric_name, split=split)
     prompt = candidate2prompt(best_candidate)
     return prompt
 

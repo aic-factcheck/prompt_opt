@@ -13,6 +13,8 @@ class AgentChat:
         self._predictor = predictor
         self._system_content = system_content
         self._history = [{"role": predictor.get_system_role(), "content": self._system_content}] if self._system_content else []
+        # self.prepend_thinking = True # DEFAULT
+        self.prepend_thinking = False #TODO: this is fixed now, it should be configurable, but there are so many instantiations...
 
 
     def history(self) -> list[dict[str, Any]]:
@@ -47,7 +49,7 @@ class AgentChat:
         if debug:
             ld(f"model_response=\n{pf(model_response)}")
         
-        if hasattr(model_response, "reasoning_content") and model_response.reasoning_content:
+        if self.prepend_thinking and hasattr(model_response, "reasoning_content") and model_response.reasoning_content:
             # if reasoning model such as DeepSeek is used, we still need to get back to original output of the model,
             # when reasoning is not enforced
             # it is important for constrained generation only anywat

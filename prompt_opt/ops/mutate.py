@@ -153,7 +153,7 @@ class DSeekImproveJSON:
         error_samples = [sample for sample in candidate["split"][self.select_split] if sample["eval"][self.score_key]["score"] < 1.0]
         if len(error_samples) == 0:
             logger.warning("all samples correct, no way to improve...")
-            return [deepcopy(candidate) for _ in range(n_neighbors)]
+            return [deepcopy(candidate) for _ in range(n_neighbors)] # TODO mutate somehow
         
         neighbors = []
         for neighbor_idx in range(n_neighbors):
@@ -213,17 +213,21 @@ class DSeekDirectImproveJSON:
         self.max_error_samples = self.cfg_op["max_error_samples"]
         
         self.system_content = self.predictor.render_template(self.cfg_op.get("template_system_content"))
-        self.template_give_error_samples = self.predictor.get_template(self.cfg_op["template_give_error_samples"])
+        # self.template_give_error_samples = self.predictor.get_template(self.cfg_op["template_give_error_samples"])
+        self.template_give_samples = self.predictor.get_template(self.cfg_op["template_give_samples"])
         
         
     def _mutate_helper(self, candidate, n_neighbors: int):
         original_prompt = candidate2prompt_dseek(candidate)
         schema_str = jformat(self.output_schema)
         
+        scores = [sample["eval"][self.score_key]["score"] for sample in candidate["split"][self.select_split]]
+        avg_score = np.mean(scores)
+        
         error_samples = [sample for sample in candidate["split"][self.select_split] if sample["eval"][self.score_key]["score"] < 1.0]
         if len(error_samples) == 0:
             lw("all samples correct, no way to improve...")
-            return [deepcopy(candidate) for _ in range(n_neighbors)]
+            return [deepcopy(candidate) for _ in range(n_neighbors)] # TODO mutate somehow
         
         neighbors = []
         for neighbor_idx in range(n_neighbors):
@@ -238,13 +242,14 @@ class DSeekDirectImproveJSON:
                 query = sample["query"]
                 pred = sample["pred"]
                 gold = sample["gold"]
+                score = sample["eval"][self.score_key]["score"]
                 pred_str = jformat(pred)
                 gold_str = jformat(gold)
-                dataset.append({"query": query, "predictions": pred_str, "gold": gold_str})
+                dataset.append({"query": query, "predictions": pred_str, "gold": gold_str, "score": score})
             
-            prompt_give_error_samples = self.template_give_error_samples.render(instructions=original_prompt, schema=schema_str, dataset=dataset)
+            prompt_give_samples = self.template_give_samples.render(instructions=original_prompt, schema=schema_str, dataset=dataset, avg_score=avg_score)
 
-            response = agent.query(prompt=prompt_give_error_samples, frequency_penalty=0.05, seed=self.rng.randint(int(1e10)))
+            response = agent.query(prompt=prompt_give_samples, frequency_penalty=0.05, seed=self.rng.randint(int(1e10)))
             
             neighbor = {"messages": agent.history(), "parent_id": candidate["id"], "split2indices": candidate["split2indices"], "duration": time.time()-st}
             neighbors.append(neighbor)

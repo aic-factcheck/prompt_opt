@@ -1,3 +1,4 @@
+from joblib import Parallel, delayed
 from loguru import logger
 import numpy as np
 import wandb
@@ -30,6 +31,13 @@ class PredictEvaluateAndLogCandidate:
         self.load_ops()
         self.best_scores = {}
         self.log_step = 1
+        self.predict_jobs = self.cfg_optimizer.get("predict_jobs", 1)
+        self.score_jobs = self.cfg_optimizer.get("score_jobs", 1)
+        if self.predict_jobs != 1:
+            ld(f"parallel predictions, n_jobs = {self.predict_jobs}")
+        if self.score_jobs != 1:
+            ld(f"parallel scoring, n_jobs = {self.score_jobs}")
+
 
     def load_ops(self):
         self.predict_op = get_class_instance_by_config(
@@ -38,43 +46,54 @@ class PredictEvaluateAndLogCandidate:
         self.score_ops = [
             get_class_instance_by_config(score_op_cfg, exp_path=self.exp_path, predictors=self.predictors)
             for score_op_cfg in self.cfg_optimizer["ops"]["score_ops"]
-        ]
+        ]   
+            
 
     def predict_candidate_json(
         self,
         candidate,
         split,
-        examples=None,
+        examples=None
     ):
         samples = self.split_tracker.get_samples(split, candidate["split2indices"])
         generated_prompt = self.candidate2prompt(candidate)
+
         if "split" not in candidate:
             candidate["split"] = {}
+
         if self.population.is_resume() and split in candidate["split"]:
             ld(f"{len(candidate['split'][split])} already prepared, will skip....")
         else:
             candidate["split"][split] = []
+
+        existing_results = candidate["split"][split]
+        total = len(samples)
+
+        # --- resume logic ---
         idx = 0
-        for sample in samples:
-            # check format if skipping
-            if len(candidate["split"][split]) >= (idx + 1):
-                entry = candidate["split"][split][idx]
-                # sanity check for resume: at least check if queries for the already computed samples match
-                if entry["query"] != sample["query"]:
-                    le("ENTRY")
-                    le(entry["query"])
-                    le("SAMPLE")
-                    le(sample["query"])
-                    assert False
-                assert entry["gold"] == sample["answer"]
-                idx += 1
-                ld(f"skipped {idx}/{len(samples)}")
-                continue
+        for sample in samples[:len(existing_results)]:
+            entry = existing_results[idx]
+            if entry["query"] != sample["query"]:
+                le("ENTRY")
+                le(entry["query"])
+                le("SAMPLE")
+                le(sample["query"])
+                assert False
+            assert entry["gold"] == sample["answer"]
+            idx += 1
+            ld(f"skipped {idx}/{total}")
 
+        remaining_samples = samples[len(existing_results):]
+        if not remaining_samples:
+            return
+
+        def _predict_one(sample):
             response, messages = self.predict_op.predict(
-                prompt=generated_prompt, query=sample["query"], output_schema=self.output_schema, examples=examples
+                prompt=generated_prompt,
+                query=sample["query"],
+                output_schema=self.output_schema,
+                examples=examples,
             )
-
             response.update(
                 {
                     "gold": sample["answer"],
@@ -82,14 +101,30 @@ class PredictEvaluateAndLogCandidate:
                     "messages": messages,
                 }
             )
-            candidate["split"][split].append(response)
-            idx += 1
-            self.population.save()  # TODO make save incremental (this saves the whole archive all over again)
-            li(f"done {idx}/{len(samples)}")
+            return response
+
+        if self.predict_jobs == 1 or len(remaining_samples) == 1:
+            # sequential
+            for sample in remaining_samples:
+                result = _predict_one(sample)
+                candidate["split"][split].append(result)
+                idx += 1
+                self.population.save()
+                li(f"done {idx}/{total}")
+        else:
+            # 0 means "all"
+            n_workers = len(remaining_samples) if self.predict_jobs == 0 else self.predict_jobs
+            results = Parallel(n_jobs=n_workers, prefer="threads")(
+                delayed(_predict_one)(sample) for sample in remaining_samples
+            )
+            candidate["split"][split].extend(results)
+            self.population.save()  # save once
+
 
     def evaluate_candidate_json(self, candidate, split):
         evals = candidate["split"][split]
-        for eidx, e in enumerate(evals):
+
+        def _evaluate_one(eidx, e):
             gold = e["gold"]
             pred = e["pred"]
 
@@ -103,10 +138,26 @@ class PredictEvaluateAndLogCandidate:
                 if self.population.is_resume() and score_key in e["eval"]:
                     ld(f"already evaluated for score_key={score_key} skipping...")
                     continue
-                scoring = score_op.score_sample(gold, pred)  # score and reasoning
+                scoring = score_op.score_sample(gold, pred)
                 assert score_key not in e["eval"], f'duplicate score_op key "{score_key}"'
                 e["eval"][score_key] = scoring
-        self.population.save()  #
+
+            return e
+
+        if self.score_jobs == 1:
+            # sequential
+            for eidx, e in enumerate(evals):
+                evals[eidx] = _evaluate_one(eidx, e)
+        else:
+            # parallel
+            n_workers = len(evals) if self.score_jobs == 0 else self.score_jobs
+            results = Parallel(n_jobs=n_workers, prefer="threads")(
+                delayed(_evaluate_one)(eidx, e) for eidx, e in enumerate(evals)
+            )
+            candidate["split"][split] = results
+            
+        self.population.save()  # save once at the end
+
 
     def log_candidate(self, candidate, split, best_scores={}):
         # tracks and logs best scores so far
@@ -129,6 +180,7 @@ class PredictEvaluateAndLogCandidate:
         if wandb.run is not None:
             wandb.log(log_recs, step=self.log_step, commit=False)
 
+
     def predict_evaluate_log(self, candidate):
         for split in self.splits:
             li(f'making predictions for "{split}"...')
@@ -146,7 +198,12 @@ class PredictEvaluateAndLogCandidate:
 
 def get_candidate_score(candidate, split, score_key):
     # ld(f"canidate id={candidate['id']}({candidate.get('parent_id')}), {candidate.keys()}")
-    sample_scores = [sample["eval"][score_key]["score"] for sample in candidate["split"][split]]
+    if split == "all" and split not in candidate["split"]:
+        sample_scores = []
+        for split_ in candidate["split"].keys():
+            sample_scores += [sample["eval"][score_key]["score"] for sample in candidate["split"][split_]]
+    else:
+        sample_scores = [sample["eval"][score_key]["score"] for sample in candidate["split"][split]]
     return np.mean(sample_scores)
 
 

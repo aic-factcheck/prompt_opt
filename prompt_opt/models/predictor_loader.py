@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from pprint import pp
+import random
+import socket
 import subprocess
 import time
 from typing import Dict, List, Union
@@ -11,7 +13,7 @@ import numpy as np
 
 
 from ..slurm_utils import get_job_id, get_idle_gpus, get_allocated_nodes_and_gpus
-from .llm_predictor import LLMPredictor, OpenAIPredictor, VLLMPredictor, DebugPredictor
+from .llm_predictor import LLMPredictor, OpenAIPredictor, VLLMPredictor, OllamaPredictor, DebugPredictor
 from ..agents.agent_chat import AgentChat
 from ..utils import get_class_instance_by_config
 
@@ -20,32 +22,38 @@ DEFAULT_SAMPLING_PARAMS = {"temperature": 0.3}
 class PredictorLoader:
     def __init__(self, cfg_models, exp_path, port_min=8000, port_max=8999):
         cfg_openai_models = {}
-        cfg_local_models = {}
+        cfg_vllm_models = {}
+        cfg_ollama_models = {}
         cfg_debug_models = {}
         for model_id, cfg_model in cfg_models.items():
-            type_ = cfg_model.get("type", "local")
-            assert type_ in ["local", "openai", "debug"]
-            if type_ == "local":
-                cfg_local_models[model_id] = cfg_model
+            type_ = cfg_model.get("type", "vllm")
+            assert type_ in ["vllm", "ollama", "openai", "debug"]
+            if type_ == "vllm":
+                cfg_vllm_models[model_id] = cfg_model
+            elif type_ == "ollama":
+                cfg_ollama_models[model_id] = cfg_model
             elif type_ == "openai":
                 cfg_openai_models[model_id] = cfg_model
             else:
                 cfg_debug_models[model_id] = cfg_model
                 
         self.openai_predictor_loader = OpenAIPredictorLoader(cfg_openai_models, exp_path) if len(cfg_openai_models) > 0 else DummyPredictorLoader()
-        self.local_predictor_loader = LocalPredictorLoader(cfg_local_models, exp_path, port_min=8000, port_max=8999) if len(cfg_local_models) > 0 else DummyPredictorLoader()
+        self.vllm_predictor_loader = VLLMPredictorLoader(cfg_vllm_models, exp_path, port_min=8000, port_max=8999) if len(cfg_vllm_models) > 0 else DummyPredictorLoader()
+        self.ollama_predictor_loader = OllamaPredictorLoader(cfg_ollama_models, exp_path, port_min=8000, port_max=8999) if len(cfg_ollama_models) > 0 else DummyPredictorLoader()
         self.debug_predictor_loader = DebugPredictorLoader(cfg_debug_models) if len(cfg_debug_models) > 0 else DummyPredictorLoader()
     
     
     def killall(self):
         self.openai_predictor_loader.killall()
-        self.local_predictor_loader.killall()
+        self.vllm_predictor_loader.killall()
+        self.ollama_predictor_loader.killall()
         self.debug_predictor_loader.killall()
     
     
     def load(self):
         predictors = self.openai_predictor_loader.load()
-        predictors.update(self.local_predictor_loader.load())
+        predictors.update(self.vllm_predictor_loader.load())
+        predictors.update(self.ollama_predictor_loader.load())
         predictors.update(self.debug_predictor_loader.load())
         return predictors
     
@@ -139,7 +147,7 @@ class LocalPredictorLoader:
         self.slurm_job_id = get_job_id()
         self.gpus = get_idle_gpus() # cuda devices
         self.model_ids = list(cfg_models.keys())
-        self.ports = np.random.choice(np.arange(port_min, port_max+1), size=len(self.model_ids), replace=False)
+        self.ports = self._get_free_ports(len(self.model_ids), port_min=port_min, port_max=port_max)
         
         # requested_gpus a list [0, 1, ...] for each model
         requested_gpu_idxs = [cfg_models[model_id]["gpus"] for model_id in self.model_ids]
@@ -160,12 +168,38 @@ class LocalPredictorLoader:
         assert len(self.gpus) == len(all_requested_gpu_idxs)
         
         self.processes = []
+        
+        
+    def _get_free_ports(self, n, port_min=8000, port_max=8999):
+        ports = np.random.permutation(np.arange(port_min, port_max + 1))
+        free_ports = []
 
+        for port in ports:
+            if len(free_ports) >= n:
+                break
 
-    def killall(self):
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(0.1)
+                try:
+                    s.bind(("localhost", port))
+                    free_ports.append(port)
+                except OSError:
+                    continue
+                
+        assert len(free_ports) == n, (len(free_ports), n)
+
+        return free_ports
+        
+        
+    def killall(self) -> None:
         for process in self.processes:
             logger.info(f"killing PID: {process.pid}")
             process.kill()
+
+        
+class VLLMPredictorLoader(LocalPredictorLoader):
+    def __init__(self, cfg_models, exp_path, port_min=8000, port_max=8999) -> None:
+        super().__init__(cfg_models, exp_path, port_min=port_min, port_max=port_max)
             
 
     def load(self, debug=True):
@@ -216,7 +250,7 @@ class LocalPredictorLoader:
         for model_id, port in zip(self.model_ids, self.ports):
             model_name = self.cfg_models[model_id]["name"]
             cfg_model = self.cfg_models[model_id]
-            post_completion_cfg = self.cfg_models[model_id].get("post_completion", {"impl": "prompt_opt.models.post_completion.BasicCompletionPostProcessor"})
+            post_completion_cfg = self.cfg_models[model_id].get("post_completion", {"impl": "prompt_opt.models.post_completion.BasicVLLMCompletionPostProcessor"})
             post_completion = get_class_instance_by_config(post_completion_cfg)
             completion_log_file = f"{self.exp_path}/{get_job_id()}.{model_id}.vllm_completions.jsonl"
             
@@ -226,6 +260,95 @@ class LocalPredictorLoader:
                 openai_base_url=f"http://localhost:{port}/v1",
                 sampling_params=cfg_model.get("sampling_params", DEFAULT_SAMPLING_PARAMS),
                 guided_decoding_backend=cfg_model.get("guided_decoding_backend"), 
+                template_dir=cfg_model["template_dir"],
+                log_jsonl=completion_log_file
+            )
+            predictors[model_id] = llm_predictor
+            
+            if debug: 
+                system_content = llm_predictor.get_template('chat/system_v1.txt.jinja').render()
+                agent = AgentChat(llm_predictor, system_content)
+                test_schema = {"type": "object",
+                    "properties": {
+                        "name": {
+                        "type": "string"
+                        }
+                    },
+                    "required": ["name"]
+                }
+                # test_answer = agent.query("Capital of GB?", frequency_penalty=0.05, guided_json=test_schema)
+                test_answer = agent.query("Capital of GB?", temperature=0.1, frequency_penalty=0.05, guided_json=test_schema)
+
+                logger.info(f'loaded {model_name}, test answer: "{test_answer}"')
+        logger.info("all models loaded", flush=True)
+
+        return predictors
+    
+    
+class OllamaPredictorLoader(LocalPredictorLoader):
+    # based on VLLMPredictorLoader
+    def __init__(self, cfg_models, exp_path, port_min=8000, port_max=8999) -> None:
+        super().__init__(cfg_models, exp_path, port_min=port_min, port_max=port_max)
+            
+
+    def load(self, debug=True):
+        logger.info("loading...")
+        log_files = []
+        for model_id, port, req_gpus in zip(self.model_ids, self.ports, self.requested_gpus):
+            logger.info(f'running "{model_id}" model Ollama')
+            log_file = f"{self.exp_path}/{get_job_id()}.{model_id}.ollama_server.out"
+            log_files.append(log_file)
+
+            model_name = self.cfg_models[model_id]["name"]
+            
+            cuda_visible_devices = ','.join([g for g in req_gpus])
+            os.environ["CUDA_VISIBLE_DEVICES"] = cuda_visible_devices
+            logger.info(f"CUDA_VISIBLE_DEVICES = {cuda_visible_devices}")
+            
+            os.environ["OLLAMA_HOST"] = f"0.0.0.0:{port}"
+            os.environ["OLLAMA_KEEP_ALIVE"] = "-1"
+            os.environ["OLLAMA_CONTEXT_LENGTH"] = "32768"
+            os.environ["AIOHTTP_CLIENT_TIMEOUT"] = "2400"
+            
+            command_line = ["nohup", "ollama", "serve"]
+            logger.debug(f"Ollama command line: {command_line}")
+            
+            with open(log_file, "a") as log_file:
+                process = subprocess.Popen(
+                    command_line, 
+                    stdout=log_file,
+                    stderr=subprocess.STDOUT,
+                    # preexec_fn=os.setpgrp
+                    )
+                self.processes.append(process)
+            time.sleep(3)
+        
+        logger.info("waiting for Ollama to start...", flush=True)
+        while len(log_files) > 0:
+            for log_file in log_files.copy():
+                 with open(log_file, 'r') as file:
+                    contents = file.read()
+        
+                    if "Listening on" in contents:
+                        logger.info(f"Ollama initialized for: {log_file}")
+                        log_files.remove(log_file)
+            time.sleep(3)
+            print(".", end="", flush=True)
+            
+        predictors = {}
+        for model_id, port in zip(self.model_ids, self.ports):
+            model_name = self.cfg_models[model_id]["name"]
+            cfg_model = self.cfg_models[model_id]
+            post_completion_cfg = self.cfg_models[model_id].get("post_completion", {"impl": "prompt_opt.models.post_completion.BasicOllamaCompletionPostProcessor"})
+            post_completion = get_class_instance_by_config(post_completion_cfg)
+            completion_log_file = f"{self.exp_path}/{get_job_id()}.{model_id}.ollama_completions.jsonl"
+            
+            llm_predictor = OllamaPredictor(
+                model_name=model_name,
+                post_completion=post_completion,
+                openai_base_url=f"http://localhost:{port}/v1",
+                sampling_params=cfg_model.get("sampling_params", DEFAULT_SAMPLING_PARAMS),
+                guided_decoding=cfg_model["guided_decoding"], 
                 template_dir=cfg_model["template_dir"],
                 log_jsonl=completion_log_file
             )

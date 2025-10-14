@@ -58,3 +58,39 @@ class DatasetLoaderJSONOut:
 
     def get_output_schema(self):
         return self.output_schema
+    
+    
+class DatasetLoaderSplitsJSONOut:
+    def __init__(self, cfg):
+        data_cfg = cfg["data"]
+        logger.info("data: " + str(data_cfg))
+        self.output_schema = read_json(cfg["schema_path"])
+        ld("dataset output schema:\n" + jformat(self.output_schema))
+        
+        splits = {}
+        for split, split_rec in data_cfg.items():
+            data_path = Path(split_rec["path"])
+            assert data_path.suffix in [".json", ".jsonl"], data_path.suffix
+            if data_path.suffix == ".jsonl":
+                data = read_jsonl(data_path)
+            elif data_path.suffix == ".json":
+                data = read_json(data_path)["examples"]
+            if "size" in split_rec:
+                size = split_rec["size"]
+                assert size <= len(data), (size, len(data))
+                data = data[:size]
+            splits[split] = data
+            
+            for sample in data:
+                validate(sample["answer"], self.output_schema)
+            logger.info(f'split "{split}"  #samples: {len(data)}')
+        
+        self.splits = splits
+        
+            
+    def get_data(self):
+        return self.splits
+
+
+    def get_output_schema(self):
+        return self.output_schema

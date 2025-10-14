@@ -10,10 +10,32 @@ from jsonschema import validate, ValidationError
 
 
 def extract_json_string(s: str) -> str:
-    t = s.strip()
-    if t.startswith("```json") and t.endswith("```"):
-        return t[7:-3].strip()
-    return s
+    # t = s.strip()
+    # if t.startswith("```json") and t.endswith("```"):
+    #     return t[7:-3].strip()
+    # return s
+    return extract_code_block(s, lang="json")
+
+
+def extract_code_block(text, lang="json") -> str:
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
+    start_marker = f"```{lang}"
+    end_marker = "```"
+
+    start_index = text.find(start_marker)
+    if start_index != -1:
+        start_index += len(start_marker)
+
+        end_index = text.rfind(end_marker)
+        if end_index == -1 or end_index <= start_index:
+            return None
+
+        code_str = text[start_index:end_index].strip()
+    else:
+        code_str = text
+
+    return code_str
 
 
 def extract_response_md(model_response: str):
