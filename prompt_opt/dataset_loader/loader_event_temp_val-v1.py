@@ -13,7 +13,7 @@ class DatasetLoaderEventTemporalValidityV1:
         
         logger.info("data_dir: " + data_dir)
         data = read_jsonl(data_dir)
-        self.output_schema = read_json("data/schemas/schema_events2temp.json")
+        self.output_schema = read_json("data/CRO/schemas/schema_events2temp.json")
 
         for sample in data:
             validate(sample["answer"], self.output_schema)

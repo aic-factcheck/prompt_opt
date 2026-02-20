@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 import numpy as np
 from pathlib import Path
 
@@ -10,50 +11,65 @@ def get_exp_dir(cfg):
     return str(Path(cfg["root"], cfg["experiment_name"], f'seed_{cfg["seed"]}').absolute())
 
 
+def dataset_loader_factory(dataset, trn_scale=1):
+    return {
+            "impl": "prompt_opt.dataset_loader.loader_common.DatasetLoaderJSONOut",
+            "data_path": f"data/DocRED/{dataset}.json",
+            "schema_path": f"data/DocRED/schemas/schema_{dataset}.json",
+            "trn_size": 16*trn_scale,
+            "tst_size": 24
+        }
+    
+        
+def score_oa_factory(dataset):
+    schema = f"data/DocRED/oa/schema_{dataset}.json"
+    return {
+        "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
+        "score_key": "oa",
+        "schema": read_json(schema)
+    }
+    
+
 def config():
-    dataset_name, dataset_short, dataset_version = "demagog", "DM", "v4" 
+    dataset = "docred_relations_hints"
     mutate_max_error_samples = 3
     # mutate_max_error_samples = 1
+    # trn_scale = 1
+    trn_scale = 4
     cfg = {
         "root": "EXP",
-        "experiment_name": f"{dataset_short}_V4b",
-        "experiment_note": f"""{dataset_short}_V4b: uses v4 of the dataset + custom MBJ evaluation metric, testing GPT-OSS over VLLM, all scroring on GPT-OSS""",
+        "experiment_name": f"{dataset}_V1_EA_ts4",
+        "experiment_note": f"""{dataset}_V1_EA_ts4: initial, DSeekDirectImproveJSON, trn_scale=4""",
         "seed": np.random.randint(10000000),
         "models": {
-            "optimizer": get_gptoss_120b(),
-            # "predictor": get_gptoss_120b(),
-            # "scorer": get_openai_gpt_5_mini(),
+            # "optimizer": get_gptoss_120b(),
+            # "optimizer": get_qwen3_32b(),
+            # "optimizer": get_qwen3_next_80b_A3b_thinking(),
+            "optimizer": get_qwen3_next_80b_A3b_instruct(),
         },
-        "dataset_loader": {
-            "impl": "prompt_opt.dataset_loader.loader_common.DatasetLoaderJSONOut",
-            "data_path": f"data/demagog/{dataset_version}/{dataset_name}.jsonl",
-            "schema_path": f"data/demagog/{dataset_version}/schemas/schema_{dataset_name}.json",
-            "trn_size": 32,
-            "tst_size": 24,
-        },
+        "dataset_loader": dataset_loader_factory(dataset, trn_scale=trn_scale),
         "optimizer": {
             "impl": "prompt_opt.optimizers.ea.EvolutionaryAlgorithm",
             "n_initial": 20,
+            # "n_initial": 100000, # init only
             "n_iters": 9,
             "xval_trn_and_dev": True,
             "xval_permute": True,
             "eval_splits": ["trn", "dev", "tst"],
             "prompt_format": "dseek",
-            "predict_jobs": 0,
-            "score_jobs": 0,
             "ops": {
                 "init_op": {
                     "impl": "prompt_opt.ops.init.DSeekInitAllExamplesJSON",
                     "model": "optimizer",
-                    "trn_size": 16,  # out of 32
-                    # MOVE ELSEWHERE
+                    "trn_size": 6 * trn_scale,
                     "template_init_using_all_examples": "dseek/dseek_init_01_using_all_examples_for_json_output_simple_v2.txt.jinja",
                 },
                 "mutate_op": {
                     "impl": "prompt_opt.ops.mutate.DSeekImproveJSON",
                     "model": "optimizer",
                     "select_split": "trn",
-                    "score_key": "mbj",
+                    "score_key": "oa",
+                    # "score_key": "mbj",
                     "max_error_samples": mutate_max_error_samples,
                     # MOVE ELSEWHERE
                     "template_improve_first_sample": "dseek/dseek_improve_01_first_sample_v2.txt.jinja",
@@ -72,13 +88,12 @@ def config():
                         "impl": "prompt_opt.ops.compare.DebugCompare",
                         "log": "compare_log_select.jsonl",
                         "ops": [
-                            # {
-                            #     "impl": "prompt_opt.ops.compare.DSeekCompareJSON",
-                            #     "select_split": "trn",
-                            #     "model": "optimizer",
-                            #     "template_compare": "dseekdir/dseekdir_compare_01_single_example_v1.txt.jinja",
-                            # },
-                            {"impl": "prompt_opt.ops.compare.CompareScore", "select_split": "trn", "score_key": "mbj"}
+                            {
+                                "impl": "prompt_opt.ops.compare.CompareScore",
+                                "select_split": "trn",
+                                "score_key": "oa"
+                                # "score_key": "mbj"
+                            }
                         ],
                     },
                 },
@@ -98,30 +113,29 @@ def config():
                             #     "model": "optimizer",
                             #     "template_compare": "dseekdir/dseekdir_compare_01_single_example_v1.txt.jinja",
                             # },
-                            {"impl": "prompt_opt.ops.compare.CompareScore", "select_split": "trn", "score_key": "mbj"}
+                            {
+                                "impl": "prompt_opt.ops.compare.CompareScore",
+                                "select_split": "trn",
+                                "score_key": "oa"
+                                # "score_key": "mbj"
+                            }
                         ],
-                    },
+                    }
                 },
-                # "predict_op": {
-                #     "impl": "prompt_opt.ops.predict.PredictCorrectedJSON",
-                #     "model": "optimizer",
-                #     "template_process": "correct_json/correct_predict_01_process_json_schema_v1.txt.jinja",
-                #     "template_correct": "correct_json/correct_predict_02_correct_json_schema_v1.txt.jinja",
-                #     "max_corrections": 3,
-                # },
                 "predict_op": {
                     "impl": "prompt_opt.ops.predict.PredictReasoningJSON",
                     "model": "optimizer",
                     "template_process": "dseek/dseek_predict_01_process_json_schema_v2.txt.jinja",
                 },
                 "score_ops": [
-                    {
-                        "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
-                        "score_key": "mbj",
-                        # "model": "scorer",
-                        "model": "optimizer",
-                        "template_score": "metrics/dseek/demagog/dseek_model_based_metric_02_for_json.txt.jinja",
-                    },
+                    score_oa_factory(dataset),
+                    # {
+                    #     "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
+                    #     "score_key": "mbj",
+                    #     # "model": "scorer",
+                    #     "model": "optimizer",
+                    #     "template_score": "metrics/dseek/dseek_model_based_metric_02_for_json.txt.jinja",
+                    # },
                 ],
             },
         },

@@ -32,7 +32,7 @@ class DatasetLoaderPeopleRolesV2:
             logger.info(f'dataset subsampled to: {split_txt}')
 
         self.data = data
-        self.output_schema = read_json("data/schemas/schema_people.json")
+        self.output_schema = read_json("data/CRO/schemas/schema_people.json")
 
         logger.info('dataset output schema:\n' + jformat(self.output_schema))
 

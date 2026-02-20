@@ -105,7 +105,7 @@ def config():
                 "predict_op": model_people,
                 "prompt_text": prompt_people,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_people.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_people.json"),
             },
             # Predict LOCATIONS
             {
@@ -115,7 +115,7 @@ def config():
                 "predict_op": model_locs,
                 "prompt_text": prompt_locs,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_locs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_locs.json"),
             },
             # Predict ORGANIZATIONS
             {
@@ -125,7 +125,7 @@ def config():
                 "predict_op": model_orgs,
                 "prompt_text": prompt_orgs,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_orgs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_orgs.json"),
             },
             # Append PEOPLE
             {
@@ -187,7 +187,7 @@ def config():
                 "predict_op": model_events_complete,
                 "prompt_text": prompt_events_complete,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events_complete.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events_complete.json"),
             },
             # Add IDs to SUBEVENTS
             {
@@ -224,7 +224,7 @@ def config():
                 "predict_op": model_events2people,
                 "prompt_text": prompt_events2people,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events2people.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2people.json"),
             },
             # Query EVENTS2ORGS
             {
@@ -243,7 +243,7 @@ def config():
                 "predict_op": model_events2orgs,
                 "prompt_text": prompt_events2orgs,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events2orgs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2orgs.json"),
             },
             # Query EVENTS2LOCS
             {
@@ -262,7 +262,7 @@ def config():
                 "predict_op": model_events2locs,
                 "prompt_text": prompt_events2locs,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events2locs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2locs.json"),
             },
             # Query EVENTS2ATTRIBUTIONS
             {
@@ -281,7 +281,7 @@ def config():
                 "predict_op": model_events2attributions,
                 "prompt_text": prompt_events2attributions,
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events2attributions.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2attributions.json"),
             },
             # Merge EVENTS2PEOPLE
             {
@@ -405,7 +405,7 @@ def config():
                     {
                         "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
                         "score_key": "oa_people",
-                        "schema": read_json("data/oa/schema_people_V2.json"),
+                        "schema": read_json("data/CRO/oa/schema_people_V2.json"),
                     },
                     {
                         "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
@@ -430,7 +430,7 @@ def config():
                     {
                         "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
                         "score_key": "oa_locs",
-                        "schema": read_json("data/oa/schema_locs_V2.json"),
+                        "schema": read_json("data/CRO/oa/schema_locs_V2.json"),
                     },
                     {
                         "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
@@ -454,7 +454,7 @@ def config():
                     {
                         "impl": "prompt_opt.ops.score_json.ScoreObjectAligner",
                         "score_key": "oa_orgs",
-                        "schema": read_json("data/oa/schema_orgs_V2.json"),
+                        "schema": read_json("data/CRO/oa/schema_orgs_V2.json"),
                     },
                     {
                         "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",

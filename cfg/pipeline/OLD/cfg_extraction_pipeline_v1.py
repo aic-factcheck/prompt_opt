@@ -72,7 +72,7 @@ def config():
                 "deps": ["query_NER"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_peopleV2-V7-mbj.md",
-                "output_schema": read_json("data/schemas/schema_people.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_people.json"),
             },
             {
                 "id": "append_people",
@@ -90,7 +90,7 @@ def config():
                 "deps": ["query_NER"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_locs-V7-mbj.md",
-                "output_schema": read_json("data/schemas/schema_locs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_locs.json"),
             },
             {
                 "id": "append_locs",
@@ -108,7 +108,7 @@ def config():
                 "deps": ["query_NER"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_orgs-V7-mbj.md",
-                "output_schema": read_json("data/schemas/schema_orgs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_orgs.json"),
             },
             {
                 "id": "append_orgs",
@@ -132,7 +132,7 @@ def config():
                 "deps": ["query_event"],
                 "predict_op": dseek_predict_op("model1",),
                 "prompt": "data/pipeline/prompts/prompt_eventsV4events-mbj.md",
-                "output_schema": read_json("data/schemas/schema_events.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events.json"),
             },
             {
                 "id": "append_subevent_ids",
@@ -163,7 +163,7 @@ def config():
                 "deps": ["query_events2people"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_eventsV3people-oa.md",
-                "output_schema": read_json("data/schemas/schema_events2people.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2people.json"),
             },
             {
                 "id": "merge_events2people",
@@ -189,7 +189,7 @@ def config():
                 "deps": ["query_events2locs"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_eventsV3locs-oa.md",
-                "output_schema": read_json("data/schemas/schema_events2locs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2locs.json"),
             },
             {
                 "id": "merge_events2locs",
@@ -214,7 +214,7 @@ def config():
                 "deps": ["query_events2orgs"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_eventsV3orgs-oa.md",
-                "output_schema": read_json("data/schemas/schema_events2orgs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2orgs.json"),
             },
             {
                 "id": "merge_events2orgs",
@@ -239,7 +239,7 @@ def config():
                 "deps": ["query_events2attributions"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_eventsV3attributions-oa.md",
-                "output_schema": read_json("data/schemas/schema_events2attributions.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2attributions.json"),
             },
             {
                 "id": "merge_events2attributions",
@@ -264,7 +264,7 @@ def config():
                 "deps": ["query_events2temp"],
                 "predict_op": dseek_predict_op("model1"),
                 "prompt": "data/pipeline/prompts/prompt_eventsV4temp-oa.md",
-                "output_schema": read_json("data/schemas/schema_events2temp.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2temp.json"),
             },
             {
                 "id": "merge_events2temp",

@@ -12,7 +12,7 @@ def get_out_dir(cfg):
 
 def config():
     cfg = {
-        "root": "data/labeled_datasets/cro/partial",
+        "root": "data/CRO/cro/partial",
         "pipeline_name": "V2",
         "pipeline_note": "CRO datasets V2: fixes based on Tereza's review in Labeler. No fixes in NERs, so keepeing them on V1.",
         "seed": 1234,
@@ -22,7 +22,7 @@ def config():
             {
                 "id": "load_samples_raw",
                 "impl": "prompt_opt.pipeline.import.LoadSamples",
-                "file": "data/labeled_datasets/cro/full/cro_full_V2.jsonl",
+                "file": "data/CRO/cro/full/cro_full_V2.jsonl",
                 "persistent": False,
             },
             # FULL: for full training
@@ -161,6 +161,23 @@ def config():
                                   "events.subevents.event",
                                   "events.subevents.time_start", "events.subevents.time_end"],
             },
+            # EVENTS & SUBEVENTS + FUTURE - COMPLETE: no dependence on pre-extracted NERS, includes temporal information
+            {
+                "id": "query_event_complete_future",
+                "impl": "prompt_opt.pipeline.query.EventQuery",
+                "deps": ["load_samples_raw"],
+                "output_format": "jsonl",
+                "output_name": "events_complete_future_V2",
+                "copy": ["id", "cro_idx"],
+                "sources": ["date", "text"],
+                "source_cfg": source_configurator(["date", "text"]),
+                "answer_keys": ["events"],
+                "answer_select": ["events.event",
+                                  "events.future",
+                                  "events.time_start", "events.time_end", "events.time_reported",
+                                  "events.subevents.event",
+                                  "events.subevents.time_start", "events.subevents.time_end"],
+            },
             # EVENTS2PEOPLE
             {
                 "id": "query_events2people",
@@ -226,6 +243,23 @@ def config():
                 "answer_keys": ["events"],
                 "answer_select": ["events.id", "events.people", "events.orgs", "events.locations", "events.attributions"],
             },
+            # EVENTS2ALL: NER linking + temporal + future (everything except event/subevent text)
+            {
+                "id": "query_events2all",
+                "impl": "prompt_opt.pipeline.query.EventQuery",
+                "deps": ["load_samples_raw"],
+                "output_format": "jsonl",
+                "output_name": "events2all_V2",
+                "copy": ["id", "cro_idx"],
+                "sources": ["date", "text", "people", "organizations", "locations", "events"],
+                "source_cfg": source_configurator(["date", "text", "people", "organizations", "locations", "events"]),
+                "answer_keys": ["events"],
+                "answer_select": ["events.id", "events.future",
+                                  "events.people", "events.orgs", "events.locations", "events.attributions",
+                                  "events.time_start", "events.time_end", "events.time_reported",
+                                  "events.subevents.subid",
+                                  "events.subevents.time_start", "events.subevents.time_end"],
+            },
             # EVENTS2TEMP
             {
                 "id": "query_events2temp",
@@ -246,7 +280,7 @@ def config():
             {
                 "id": "load_unlabeled_samples_raw",
                 "impl": "prompt_opt.pipeline.import.LoadSamples",
-                "file": "data/labeled_datasets/cro/full/cro_unlabeled_V2.jsonl",
+                "file": "data/CRO/cro/full/cro_unlabeled_V2.jsonl",
                 "persistent": False,
             },
             # UNLABELED

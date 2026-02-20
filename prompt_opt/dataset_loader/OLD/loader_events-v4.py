@@ -12,7 +12,7 @@ class DatasetLoaderEventsV4Events:
         data_dir = "data/labeled_datasets/events_V4_events.jsonl"
         logger.info("data_dir: " + data_dir)
         data = read_jsonl(data_dir)
-        self.output_schema = read_json("data/schemas/schema_events.json")
+        self.output_schema = read_json("data/CRO/schemas/schema_events.json")
         
         for sample in data:
             validate(sample["answer"], self.output_schema)

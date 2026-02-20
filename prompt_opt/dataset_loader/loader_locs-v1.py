@@ -31,7 +31,7 @@ class DatasetLoaderLocsV1:
             logger.info(f'dataset subsampled to: {split_txt}')
 
         self.data = data
-        self.output_schema = read_json("data/schemas/schema_locs.json")
+        self.output_schema = read_json("data/CRO/schemas/schema_locs.json")
 
         logger.info('dataset output schema:\n' + jformat(self.output_schema))
 

@@ -241,19 +241,82 @@ def get_qwen3_14b(gpus=[0], reasoning=False):
         }
 
 
-def get_qwen3_32b(gpus=[0], reasoning=False):
-    extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}
+# def get_qwen3_32b(gpus=[0], reasoning=False):
+#     extra_opts = {"enable-reasoning": None, "reasoning-parser": "deepseek_r1"} if reasoning else {}
+#     vllm_opts = {
+#         "gpu-memory-utilization": 0.95,
+#         "max-model-len": 40960 if len(gpus) == 1 else 131072,
+#         "enable-prefix-caching": None,
+#         **extra_opts,
+#     }
+#     if len(gpus) > 1:
+#         vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
+#     return {
+#         "short": "qwen3_32b",
+#         "name": "CobraMamba/Qwen3-32B-AWQ",
+#         "gpus": gpus,
+#         "template_dir": "data/templates/agents",
+#         "vllm_opts": vllm_opts,
+#     }
+    
+def get_qwen3_32b(gpus=[0]):
     vllm_opts = {
         "gpu-memory-utilization": 0.95,
-        "max-model-len": 40960 if len(gpus) == 1 else 131072,
-        "enable-prefix-caching": None,
-        **extra_opts,
+        "enable-prefix-caching": None
     }
-    if len(gpus) > 1:
-        vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
+    # if len(gpus) > 1:
+    vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
     return {
         "short": "qwen3_32b",
         "name": "CobraMamba/Qwen3-32B-AWQ",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": vllm_opts,
+    }
+    
+    
+def get_qwen3_next_80b_A3b_thinking(gpus=[0]):
+    vllm_opts = {
+        "gpu-memory-utilization": 0.95,
+        "enable-prefix-caching": None
+    }
+    # if len(gpus) > 1:
+    vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
+    return {
+        "short": "qwen3N-80b-A3b-T",
+        "name": "Qwen/Qwen3-Next-80B-A3B-Thinking-FP8",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": vllm_opts,
+    }
+    
+    
+def get_qwen3_next_80b_A3b_instruct(gpus=[0]):
+    vllm_opts = {
+        "gpu-memory-utilization": 0.95,
+        "enable-prefix-caching": None
+    }
+    # if len(gpus) > 1:
+    vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
+    return {
+        "short": "qwen3N-80b-A3b-I",
+        "name": "Qwen/Qwen3-Next-80B-A3B-Instruct-FP8",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": vllm_opts,
+    }
+    
+    
+def get_qwen3_235b_a22b(gpus=[0, 1]):
+    vllm_opts = {
+        "gpu-memory-utilization": 0.95,
+        "enable-prefix-caching": None
+    }
+    # if len(gpus) > 1:
+    vllm_opts["rope-scaling"] = '{"rope_type":"yarn","factor":4.0,"original_max_position_embeddings":32768}'
+    return {
+        "short": "qwen3-235b-a22b",
+        "name": "mlx-community/Qwen3-235B-A22B-Thinking-2507-4bit",
         "gpus": gpus,
         "template_dir": "data/templates/agents",
         "vllm_opts": vllm_opts,
@@ -306,6 +369,15 @@ def get_openai_gpt_5():
         "ignore_temperature": True
     }
     
+def get_openai_gpt_5_2():
+    return {
+        "type": "openai",
+        "short": "gpt52",
+        "name": "gpt-5.2-2025-12-11",
+        "template_dir": "data/templates/agents",
+        "ignore_temperature": True
+    }
+    
 def get_openai_gpt_5_mini():
     return {
         "type": "openai",
@@ -345,6 +417,20 @@ def get_ollama_gptoss_120b(gpus=[0]):
         "guided_decoding": "chat",
         "template_dir": "data/templates/agents",
     }
+    
+def get_gptoss_20b(gpus=[0], reasoning=False):
+    vllm_opts = {
+        "gpu-memory-utilization": 0.9,
+        "no-enable-prefix-caching": None
+    }
+    return {
+        "short": "gpt-oss-20b",
+        "name": "openai/gpt-oss-20b",
+        "gpus": gpus,
+        "template_dir": "data/templates/agents",
+        "vllm_opts": vllm_opts,
+    }
+    
     
 def get_gptoss_120b(gpus=[0], reasoning=False):
     vllm_opts = {

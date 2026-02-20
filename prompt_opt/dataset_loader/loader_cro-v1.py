@@ -63,7 +63,7 @@ class DatasetLoaderPeopleV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_people.json"
+        return "data/CRO/schemas/schema_people.json"
         
 
     def get_data(self):
@@ -84,7 +84,7 @@ class DatasetLoaderOrgsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_orgs.json"
+        return "data/CRO/schemas/schema_orgs.json"
         
 
     def get_data(self):
@@ -105,7 +105,7 @@ class DatasetLoaderLocsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_locs.json"
+        return "data/CRO/schemas/schema_locs.json"
         
 
     def get_data(self):
@@ -126,7 +126,7 @@ class DatasetLoaderEventsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events.json"
+        return "data/CRO/schemas/schema_events.json"
         
 
     def get_data(self):
@@ -147,7 +147,7 @@ class DatasetLoaderEventsOnlyV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events_only.json"
+        return "data/CRO/schemas/schema_events_only.json"
         
 
     def get_data(self):
@@ -168,7 +168,7 @@ class DatasetLoaderSubeventsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_subevents.json"
+        return "data/CRO/schemas/schema_subevents.json"
         
 
     def get_data(self):
@@ -189,7 +189,7 @@ class DatasetLoaderEvents2PeopleV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events2people.json"
+        return "data/CRO/schemas/schema_events2people.json"
         
 
     def get_data(self):
@@ -210,7 +210,7 @@ class DatasetLoaderEvents2OrgsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events2orgs.json"
+        return "data/CRO/schemas/schema_events2orgs.json"
         
 
     def get_data(self):
@@ -231,7 +231,7 @@ class DatasetLoaderEvents2LocsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events2locs.json"
+        return "data/CRO/schemas/schema_events2locs.json"
         
 
     def get_data(self):
@@ -252,7 +252,7 @@ class DatasetLoaderEvents2AttributionsV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events2attributions.json"
+        return "data/CRO/schemas/schema_events2attributions.json"
         
 
     def get_data(self):
@@ -273,7 +273,7 @@ class DatasetLoaderEvents2TempV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_events2temp.json"
+        return "data/CRO/schemas/schema_events2temp.json"
         
 
     def get_data(self):
@@ -294,7 +294,7 @@ class DatasetLoaderCROFullV1(DatasetLoaderCRO):
         
         
     def _get_schema_path(self):
-        return "data/schemas/schema_cro_full.json"
+        return "data/CRO/schemas/schema_cro_full.json"
         
 
     def get_data(self):

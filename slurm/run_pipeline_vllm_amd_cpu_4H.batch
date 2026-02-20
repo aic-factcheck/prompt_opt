@@ -20,4 +20,5 @@ cd ${PROJECT_DIR}
 export OUTLINES_CACHE_DIR=/tmp/.drchajan.vlll.outlines
 
 export PYTHONPATH=.:/home/drchajan/devel/python/FC/drchajan/src:/home/drchajan/devel/python/FC/fever-baselines/src:$PYTHONPATH
+
 python -m prompt_opt.run_pipeline "$1"

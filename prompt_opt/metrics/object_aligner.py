@@ -394,8 +394,16 @@ class ObjectAligner:
         return {"gold": aligned_gold, "pred": aligned_pred, "match": MatchDict(score=score, children=children)}
         
         
+    def _align_booleans(self, g, p, schema):
+        score = similarity_exact(g, p)
+        return {"gold": g, "pred": p, "match": MatchItem(score=score, gold=g, pred=p)}
+
+
     def _align_helper(self, g, p, schema):
-        if isinstance(g, (int, float)):
+        if isinstance(g, bool):
+            assert schema["type"] == "boolean", schema["type"]
+            aligned = self._align_booleans(g, p, schema)
+        elif isinstance(g, (int, float)):
             assert schema["type"] in ["number", "integer"], schema["type"]
             aligned = self._align_numbers(g, p, schema)
         elif isinstance(g, str):

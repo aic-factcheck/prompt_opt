@@ -11,30 +11,29 @@ def get_exp_dir(cfg):
 
 
 def config():
-    dataset_name, dataset_short, dataset_version = "demagog", "DM", "v4" 
+    dataset_name, dataset_short, dataset_version = "demagog", "DM", "sarav3" 
     mutate_max_error_samples = 3
     # mutate_max_error_samples = 1
     cfg = {
         "root": "EXP",
-        "experiment_name": f"{dataset_short}_V4b",
-        "experiment_note": f"""{dataset_short}_V4b: uses v4 of the dataset + custom MBJ evaluation metric, testing GPT-OSS over VLLM, all scroring on GPT-OSS""",
+        "experiment_name": f"{dataset_short}_SV",
+        "experiment_note": f"""{dataset_short}_SV: dataset by Sara Vesela v3 + custom MBJ evaluation metric""",
         "seed": np.random.randint(10000000),
         "models": {
-            "optimizer": get_gptoss_120b(),
-            # "predictor": get_gptoss_120b(),
-            # "scorer": get_openai_gpt_5_mini(),
+            "optimizer": get_openai_gpt_5(),
+            "target": get_gptoss_20b(),
         },
         "dataset_loader": {
             "impl": "prompt_opt.dataset_loader.loader_common.DatasetLoaderJSONOut",
             "data_path": f"data/demagog/{dataset_version}/{dataset_name}.jsonl",
             "schema_path": f"data/demagog/{dataset_version}/schemas/schema_{dataset_name}.json",
             "trn_size": 32,
-            "tst_size": 24,
+            "tst_size": 28,
         },
         "optimizer": {
             "impl": "prompt_opt.optimizers.ea.EvolutionaryAlgorithm",
-            "n_initial": 20,
-            "n_iters": 9,
+            "n_initial": 40,
+            "n_iters": 99,
             "xval_trn_and_dev": True,
             "xval_permute": True,
             "eval_splits": ["trn", "dev", "tst"],
@@ -45,7 +44,7 @@ def config():
                 "init_op": {
                     "impl": "prompt_opt.ops.init.DSeekInitAllExamplesJSON",
                     "model": "optimizer",
-                    "trn_size": 16,  # out of 32
+                    "trn_size": 16,
                     # MOVE ELSEWHERE
                     "template_init_using_all_examples": "dseek/dseek_init_01_using_all_examples_for_json_output_simple_v2.txt.jinja",
                 },
@@ -104,22 +103,21 @@ def config():
                 },
                 # "predict_op": {
                 #     "impl": "prompt_opt.ops.predict.PredictCorrectedJSON",
-                #     "model": "optimizer",
+                #     "model": "target",
                 #     "template_process": "correct_json/correct_predict_01_process_json_schema_v1.txt.jinja",
                 #     "template_correct": "correct_json/correct_predict_02_correct_json_schema_v1.txt.jinja",
                 #     "max_corrections": 3,
                 # },
                 "predict_op": {
                     "impl": "prompt_opt.ops.predict.PredictReasoningJSON",
-                    "model": "optimizer",
+                    "model": "target",
                     "template_process": "dseek/dseek_predict_01_process_json_schema_v2.txt.jinja",
                 },
                 "score_ops": [
                     {
                         "impl": "prompt_opt.ops.score_json.ModelBasedDSeek",
                         "score_key": "mbj",
-                        # "model": "scorer",
-                        "model": "optimizer",
+                        "model": "target",
                         "template_score": "metrics/dseek/demagog/dseek_model_based_metric_02_for_json.txt.jinja",
                     },
                 ],

@@ -87,7 +87,7 @@ def config():
                 "predict_op": dseek_predict_op("model1"),
                 "prompt_text": get_best_prompt("EXP/people_V1b", "oa", split="tst", prompt_type="dseek"),
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_people.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_people.json"),
             },
             # Predict LOCATIONS
             {
@@ -97,7 +97,7 @@ def config():
                 "predict_op": dseek_predict_op("model1"),
                 "prompt_text": get_best_prompt("EXP/locs_V1", "oa", split="tst", prompt_type="dseek"),
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_locs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_locs.json"),
             },
             # Predict ORGANIZATIONS
             {
@@ -107,7 +107,7 @@ def config():
                 "predict_op": dseek_predict_op("model1"),
                 "prompt_text": get_best_prompt("EXP/orgs_V1b", "oa", split="tst", prompt_type="dseek"),
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_orgs.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_orgs.json"),
             },
             # Append PEOPLE
             {
@@ -156,7 +156,7 @@ def config():
                 "predict_op": dseek_predict_op("model1"),
                 "prompt_text": get_best_prompt("EXP/events_V2", "mbj", split="tst", prompt_type="dseek"),
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events.json"),
             },
             # Add IDs to EVENTS
             {
@@ -201,7 +201,7 @@ def config():
                 "predict_op": dseek_predict_op("model1"),
                 "prompt_text": get_best_prompt("EXP/events2ners_V2", "oa", split="tst", prompt_type="dseek"),
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events2ners.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2ners.json"),
             },
             # Query EVENTS2TEMP
             {
@@ -220,7 +220,7 @@ def config():
                 "predict_op": dseek_predict_op("model1"),
                 "prompt_text": get_best_prompt("EXP/events2temp_V2", "oa", split="tst", prompt_type="dseek"),
                 "save_prompt": True,
-                "output_schema": read_json("data/schemas/schema_events2temp.json"),
+                "output_schema": read_json("data/CRO/schemas/schema_events2temp.json"),
             },
             # Merge EVENTS2NERS
             {
