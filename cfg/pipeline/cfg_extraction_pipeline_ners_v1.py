@@ -37,7 +37,7 @@ def dseek_predict_op(model_name):
 
 pipeline_name, src_file = (
     f"extraction_pipeline_ners_V1_croV2-ds-llama",
-    "data/labeled_datasets/cro/full/cro_full_V2.jsonl",
+    "data/CRO/cro/full/cro_full_V2.jsonl",
 )
 
 def config():

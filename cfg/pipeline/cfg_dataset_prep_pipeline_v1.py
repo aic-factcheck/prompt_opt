@@ -20,7 +20,7 @@ def config():
     }
 
     cfg = {
-        "root": "data/labeled_datasets/cro/partial",
+        "root": "data/CRO/cro/partial",
         "pipeline_name": "V1",
         "pipeline_note": "CRO datasets V1",
         "seed": 1234,
@@ -30,7 +30,7 @@ def config():
             {
                 "id": "load_samples_raw",
                 "impl": "prompt_opt.pipeline.import.LoadSamples",
-                "file": "data/labeled_datasets/cro/full/cro_full_V1.jsonl",
+                "file": "data/CRO/cro/full/cro_full_V1.jsonl",
                 "persistent": False,
             },
             # ALL: for editing in the Labeler

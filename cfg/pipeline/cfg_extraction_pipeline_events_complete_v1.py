@@ -40,7 +40,7 @@ eval_model = "qwen3_14b"
 pipeline_name, src_file = (
     f"extraction_pipeline_events_complete_V1_croV2-ds-llama_eval-{eval_model}",
     # f"extraction_pipeline_events_complete_V1_croV2-qwen3_14b-{eval_model}",
-    "data/labeled_datasets/cro/full/cro_full_V2.jsonl"
+    "data/CRO/cro/full/cro_full_V2.jsonl"
 )
 
 # pipeline_name, src_file = f"extraction_pipeline_events_complete_V1_npars5-ds-llama", f"data/extraction_pipeline/cro_data_npars5.jsonl"

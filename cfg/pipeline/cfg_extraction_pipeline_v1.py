@@ -44,7 +44,7 @@ def config():
         "template_dir": "data/templates/agents",
     }
     
-    pipeline_name, src_file = f"extraction_pipeline_V1_croV2-ds-llama", "data/labeled_datasets/cro/full/cro_full_V2.jsonl"
+    pipeline_name, src_file = f"extraction_pipeline_V1_croV2-ds-llama", "data/CRO/cro/full/cro_full_V2.jsonl"
     # pipeline_name, src_file = f"extraction_pipeline_V1_npars5-ds-llama", f"data/extraction_pipeline/cro_data_npars5.jsonl"
     # pipeline_name, src_file = f"extraction_pipeline_V1_npars10-ds-llama", f"data/extraction_pipeline/cro_data_npars10.jsonl"
     # pipeline_name, src_file = f"extraction_pipeline_V1_npars-min5-ds-llama", f"data/extraction_pipeline/cro_data_npars-min5.jsonl"
